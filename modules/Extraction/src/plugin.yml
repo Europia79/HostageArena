@@ -1,0 +1,14 @@
+name: HostageArena
+main: mc.euro.extraction.HostagePlugin
+version: ${project.version}
+website: http://battleplugins.com/
+description: One team guards the hostages. The other team rescues the hostages.
+authors: [Europia79]
+depend: [BattleArena]
+softdepnd: [BattleTracker]
+prefix: HostageArena
+commands:
+    hostage:
+        alias: [extraction, ex, host, vips, rescue]
+        description: All HostageArena commands.
+        usage: Problem loading plugin, please send errors on startup to Europia79
