@@ -1,17 +1,26 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>mc.euro</groupId>
-    <artifactId>extraction</artifactId>
-    <packaging>jar</packaging>
-    <version>${maven.build.timestamp}</version>
-    <name>Extraction</name>
+    <artifactId>ex-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>parent</version>
+    <name>Ex Parent POM</name>
+    <url>http://github.com/Europia79/Extraction</url>
     <properties>
         <maven.build.timestamp.format>MMdd</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <url>http://maven.apache.org</url>
-    <!-- Locations for jar repositories -->
+    <modules>
+        <module>modules/debug</module>
+        <module>modules/v1_6_R1</module>
+        <module>modules/v1_6_R2</module>
+        <module>modules/v1_6_R3</module>
+        <module>modules/v1_7_R1</module>
+        <module>modules/v1_7_R2</module>
+        <module>modules/v1_7_R3</module>
+        <module>modules/Extraction</module>
+    </modules>
     <repositories>
         <repository>
             <id>battleplugins-repo</id>
@@ -38,79 +47,32 @@
             <url>http://repo.kitteh.org/content/repositories/public/</url>
         </repository>
     </repositories>
-    <!-- Dependencies -->
-    <dependencies>
-        <!-- Dependencies that have maven repos -->
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
-            <version>1.7.2-R0.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>mc.alk</groupId>
-            <artifactId>BattleArena</artifactId>
-            <version>3.9.7.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>mc.alk</groupId>
-            <artifactId>BattleTracker</artifactId>
-            <version>2.5.8.8</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-    <!-- How we will compile the plugin -->
     <build>
-        <finalName>HostageArena</finalName>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh</artifactId>
-                <version>2.4</version>
-            </extension>
-        </extensions>
-        <defaultGoal>package</defaultGoal>
-        <!-- Where our source directory is -->
-        <sourceDirectory>${basedir}/src</sourceDirectory>
-        <!-- Include all the resources we need -->
-        <resources>
-            <resource>
-                <targetPath>.</targetPath>
-                <filtering>true</filtering>
-                <directory>${basedir}/src</directory>
-                <includes>
-                    <include>*.yml</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <skip>true</skip>
                 </configuration>
-            </plugin>
-            <!-- Specify how we build the plugin.jar -->
+            </plugin> <!--
             <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <configuration>
-                <tasks>
-                    <copy file="target/HostageArena.jar" tofile="../server/plugins/HostageArena.jar"/>
-                </tasks>
-            </configuration>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>run</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <configuration>
+                    <tasks>
+                        <copy file="target/HostageArena.jar" tofile="../server/plugins/HostageArena.jar"/>
+                    </tasks>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin> -->
         </plugins>
     </build>
 </project>
