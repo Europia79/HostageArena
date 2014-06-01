@@ -8,25 +8,16 @@ One team guards the hostages while the other team attempts
 to extract (rescue) the hostages.
 
 
-<<<<<<< HEAD
 There are four ways to win:  
 1. Eliminate the other team.  
 2. Guard the hostages and let the time expire.  
 3. Rescue the hostages by bringing them to the extraction point.  
 4. Trick the other team into killing the hostages.  
-=======
-There are four ways to win: 
-1. Eliminate the other team.
-2. Guard the hostages and let the time expire.
-3. Rescue the hostages by bringing them to the extraction point.
-4. Trick the other team into killing the hostages.
->>>>>>> 2f05bd810e047268b0382852cd9b48019a0209d8
 
 
 This plugin was inspired by SOCOM US Navy Seals.
 
 
-<<<<<<< HEAD
 Thanks to 
 [http://forums.bukkit.org/threads/nms-tutorial-how-to-override-default-minecraft-mobs.216788/](TeeePeee "nms tutorial - how to override default minecraft mobs") 
 & [http://forums.bukkit.org/threads/tutorial-how-to-customize-the-behaviour-of-a-mob-or-entity.54547/](Jacek "how to customize the behaviour of a mob or entity") 
@@ -39,7 +30,6 @@ Thanks to
 for such great tutorials on supporting multiple Minecraft versions.
 =======
 Thanks to Teeepeee for such a great tutorial on NMS.
->>>>>>> 2f05bd810e047268b0382852cd9b48019a0209d8
 
 
 Why HostageArena ?
@@ -69,29 +59,6 @@ Obviously, because the Terrorist (guards) can win by simply letting
 time expire, this gamemode should NOT have infinite respawn.
 
 
-<<<<<<< HEAD
-=======
-Command Aliases:
----
-(these are all the same commands, just choose the alias you like best):
-
-/hostage
-
-/host
-
-/hostagearena
-
-/ha
-
-/extraction
-
-/ex
-
-/rescue
-
-/vips
-
->>>>>>> 2f05bd810e047268b0382852cd9b48019a0209d8
 
 Arena Setup:
 ---
