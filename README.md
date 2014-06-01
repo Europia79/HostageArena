@@ -19,17 +19,15 @@ This plugin was inspired by SOCOM US Navy Seals.
 
 
 Thanks to 
-[http://forums.bukkit.org/threads/nms-tutorial-how-to-override-default-minecraft-mobs.216788/](TeeePeee "nms tutorial - how to override default minecraft mobs") 
-& [http://forums.bukkit.org/threads/tutorial-how-to-customize-the-behaviour-of-a-mob-or-entity.54547/](Jacek "how to customize the behaviour of a mob or entity") 
+[TeeePeee](http://forums.bukkit.org/threads/nms-tutorial-how-to-override-default-minecraft-mobs.216788/ "nms tutorial - how to override default minecraft mobs") 
+& [Jacek](http://forums.bukkit.org/threads/tutorial-how-to-customize-the-behaviour-of-a-mob-or-entity.54547/ "how to customize the behaviour of a mob or entity") 
 for such great tutorials on NMS.
 
 
 Thanks to 
-[https://forums.bukkit.org/threads/tutorial-get-your-nms-obc-working-for-multiple-versions-no-reflection.261614/](bigteddy98 "tutorial get your nms obc working for multiple versions") 
-& [https://forums.bukkit.org/threads/support-multiple-minecraft-versions-with-abstraction-maven.115810/](mbaxter "support multiple minecraft versions with maven") 
+[bigteddy98](https://forums.bukkit.org/threads/tutorial-get-your-nms-obc-working-for-multiple-versions-no-reflection.261614/ "tutorial get your nms obc working for multiple versions") 
+& [mbaxter](https://forums.bukkit.org/threads/support-multiple-minecraft-versions-with-abstraction-maven.115810/ "support multiple minecraft versions with maven") 
 for such great tutorials on supporting multiple Minecraft versions.
-=======
-Thanks to Teeepeee for such a great tutorial on NMS.
 
 
 Why HostageArena ?
@@ -59,39 +57,38 @@ Obviously, because the Terrorist (guards) can win by simply letting
 time expire, this gamemode should NOT have infinite respawn.
 
 
-
 Arena Setup:
 ---
 
-`/vips create ArenaName`
+`/vips create ArenaName`  
 
-`/vips alter ArenaName wr 1` (Waiting rooms)
+`/vips alter ArenaName wr 1` (Waiting rooms)  
 
-`/vips alter ArenaName wr 2` (Waiting rooms)
+`/vips alter ArenaName wr 2` (Waiting rooms)  
 
-`/vips alter <arena> 1` (spawn point for team1)
+`/vips alter <arena> 1` (spawn point for team1)  
 
-`/vips spawnvips <arena>` (sets the spawn location for hostages)
+`/vips spawnvips <arena>` (sets the spawn location for hostages)  
 
 If the `/vips spawnvips <arena>` command ever breaks, then you can 
-use these two commands instead:
+use these two commands instead:  
 
-`/aa select <arena>`
+`/aa select <arena>`  
 
-`/aa addspawn VILLAGER 3 fs=1 rs=2500 index=1`
+`/aa addspawn VILLAGER 3 fs=1 rs=2500 index=1`  
 
 "aa stands for `/arenaAlter`. `fs` stands for First Spawn (1 second after the match begins). 
-`rs=300` stands for ReSpawn after 2500 seconds (hopefully never).
+`rs=300` stands for ReSpawn after 2500 seconds (hopefully never).  
 
-Other commands:
+Other commands:  
 
-**/vips join**
+**/vips join**  
 
-**/vips leave**
+**/vips leave**  
 
-**/vips forcestart**
+**/vips forcestart**  
 
-**/vips delete ArenaName**
+**/vips delete ArenaName**  
 
 
 Extraction Point Setup
@@ -100,27 +97,27 @@ This plugin needs some kind of way to identify where
 hostages can be safely extracted. 
 
 
-This is how you make extraction points:
+This is how you make extraction points:  
 
-- do `/vips extraction <arena>`
+- do `/vips extraction <arena>`  
 
 
-You can now join a HostageArena.
+You can now join a HostageArena.  
 
 
 (Optional) You can add a Worldguard region to BattleArena 
 so that block changes reset after each match. (Be careful 
-when using LARGE areas, it might lag your server).
+when using LARGE areas, it might lag your server).  
 
-`/region select RegionName`
+`/region select RegionName`  
 
-`/vips alter <arena> addregion`
+`/vips alter <arena> addregion`  
 
-FYI: You do NOT need to use this last command.
+FYI: You do NOT need to use this last command.  
 The Demolition plugin will automatically reset bases after each match.
 The last command should be only used if you want players to break blocks 
 (or access chests) in the arena and have WorldGuard reset all the broken blocks 
-to their original state after each match.
+to their original state after each match.  
 
 
 How to access Player Stats Database:
