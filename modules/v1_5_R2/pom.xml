@@ -24,6 +24,18 @@
             <version>parent</version>
         </dependency>
         <dependency>
+            <groupId>mc.alk</groupId>
+            <artifactId>BattleArena</artifactId>
+            <version>3.9.7.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>mc.alk</groupId>
+            <artifactId>BattleTracker</artifactId>
+            <version>2.5.8.9</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
             <version>1.5.1-R0.2</version>

@@ -1,36 +1,48 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>mc.euro</groupId>
+        <artifactId>ex-parent</artifactId>
+        <version>parent</version>
+        <relativePath>../../</relativePath>
+    </parent>
     <groupId>mc.euro</groupId>
-    <artifactId>ex-parent</artifactId>
+    <artifactId>extraction-v1_7_R1</artifactId>
     <version>parent</version>
-    <relativePath>../../</relativePath>
-  </parent>
-  <groupId>mc.euro</groupId>
-  <artifactId>extraction-v1_7_R1</artifactId>
-  <version>parent</version>
-  <name>extraction-v1_7_R1</name>
-  <url>https://github.com/Europia79/Extraction</url>
-  <properties>
-    <maven.build.timestamp.format>MMdd</maven.build.timestamp.format>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <dependencies>
-      <dependency>
+    <name>extraction-v1_7_R1</name>
+    <url>https://github.com/Europia79/Extraction</url>
+    <properties>
+        <maven.build.timestamp.format>MMdd</maven.build.timestamp.format>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
             <groupId>mc.euro</groupId>
             <artifactId>extraction-debug</artifactId>
             <version>parent</version>
         </dependency>
-      <dependency>
-          <groupId>org.bukkit</groupId>
-          <artifactId>craftbukkit</artifactId>
-          <version>1.7.2-R0.3</version>
-          <scope>provided</scope>
-      </dependency>
-  </dependencies>
-  <build>
+        <dependency>
+            <groupId>mc.alk</groupId>
+            <artifactId>BattleArena</artifactId>
+            <version>3.9.7.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>mc.alk</groupId>
+            <artifactId>BattleTracker</artifactId>
+            <version>2.5.8.9</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>craftbukkit</artifactId>
+            <version>1.7.2-R0.3</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <build>
         <finalName>Extraction-v1_7_R1</finalName>
         <directory>./target</directory>
         <sourceDirectory>./src</sourceDirectory>
