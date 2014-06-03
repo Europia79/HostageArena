@@ -19,6 +19,11 @@
   </properties>
   <dependencies>
       <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-debug</artifactId>
+            <version>parent</version>
+        </dependency>
+      <dependency>
           <groupId>org.bukkit</groupId>
           <artifactId>craftbukkit</artifactId>
           <version>1.7.2-R0.3</version>
