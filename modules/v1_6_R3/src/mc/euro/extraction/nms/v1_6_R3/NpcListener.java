@@ -1,7 +1,7 @@
-package mc.euro.extraction.nms.v1_6_R2;
+package mc.euro.extraction.nms.v1_6_R3;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_6_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_6_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -19,11 +19,11 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author Nikolai
  */
-public class HostageArena implements Listener {
+public class NpcListener implements Listener {
     
     JavaPlugin plugin;
     
-    public HostageArena() {
+    public NpcListener() {
         this.plugin = (JavaPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
     }
     

@@ -42,7 +42,7 @@ public class HostagePlugin extends JavaPlugin {
         try {
             // BattleArena.registerCompetition(this, "HostageArena", "vips", getNmsClass("HostageArena"), new BombExecutor());
             getServer().getPluginManager().registerEvents(
-                    (Listener) getNmsClass("HostageArena").getConstructor().newInstance(), this);
+                    (Listener) getNmsClass("NpcListener").getConstructor().newInstance(), this);
         } catch (Exception ex) {
             Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
         }
