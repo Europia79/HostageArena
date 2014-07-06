@@ -1,7 +1,7 @@
 HostageArena:
   name: HostageArena
-  command: hostage
-  prefix: '&a[VIPs]&e'
+  command: vips
+  prefix: '&a[VIPs]&e '
   gameSize:
     nTeams: '2'
     teamSize: '1-16'

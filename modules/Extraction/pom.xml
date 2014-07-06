@@ -10,14 +10,14 @@
     </parent>
     <groupId>mc.euro</groupId>
     <artifactId>extraction</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1-ALPHA</version>
     <name>Extraction</name>
     <url>http://github.com/Europia79/Extraction</url>
     <properties>
         <maven.build.timestamp.format>MMdd</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <repositories>
+        <repositories>
         <repository>
             <id>battleplugins-repo</id>
             <url>http://server.battleplugins.com/maven/repository/</url>
@@ -50,6 +50,16 @@
             <version>parent</version>
             <type>jar</type>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-api</artifactId>
+            <version>parent</version>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-util</artifactId>
+            <version>parent</version>
         </dependency>
         <dependency>
             <groupId>mc.euro</groupId>

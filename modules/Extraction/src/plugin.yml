@@ -8,7 +8,7 @@ depend: [BattleArena]
 softdepnd: [BattleTracker]
 prefix: HostageArena
 commands:
-    hostage:
-        alias: [extraction, ex, host, vips, rescue]
+    vips:
+        aliases: [extraction, hostage, hostagearena, harena, rescue]
         description: All HostageArena commands.
         usage: Problem loading plugin, please send errors on startup to Europia79

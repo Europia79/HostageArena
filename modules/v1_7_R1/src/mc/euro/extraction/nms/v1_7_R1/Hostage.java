@@ -1,15 +1,17 @@
 package mc.euro.extraction.nms.v1_7_R1;
 
 import java.lang.reflect.Field;
-import mc.euro.extraction.nms.v1_7_R1.PathfinderGoalFollowPlayer;
 import net.minecraft.server.v1_7_R1.Entity;
 import net.minecraft.server.v1_7_R1.EntityOwnable;
 import net.minecraft.server.v1_7_R1.EntityVillager;
 import net.minecraft.server.v1_7_R1.PathfinderGoalSelector;
 import net.minecraft.server.v1_7_R1.World;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R1.util.UnsafeList;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
@@ -19,18 +21,22 @@ public class Hostage extends EntityVillager implements EntityOwnable {
     
     String owner;
     int ownerID;
-    World world2;
     
     public Hostage(World w) {
         super(w);
-        this.world2 = w;
         clearPathfinders();
         this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0D, 2.0F, 2.0F));
     }
     
     public Hostage(World w, int profession) {
         super(w, profession);
-        this.world2 = w;
+        clearPathfinders();
+        this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0D, 2.0F, 2.0F));
+    }
+    
+    public Hostage(World w, int profession, String p) {
+        super(w, profession);
+        this.owner = p;
         clearPathfinders();
         this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0D, 2.0F, 2.0F));
     }
@@ -45,8 +51,8 @@ public class Hostage extends EntityVillager implements EntityOwnable {
             bField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
             cField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
             cField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
-        } catch (Exception exc) {
-            exc.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
     
@@ -65,7 +71,7 @@ public class Hostage extends EntityVillager implements EntityOwnable {
     }
     
     public void follow(Player p) {
-        this.owner = p.getName();
+        follow(p.getName());
     }
     
     public void follow(String p) {
@@ -95,5 +101,11 @@ public class Hostage extends EntityVillager implements EntityOwnable {
         return E;
         // return this.world.getEntity(this.ownerID);
     }
+    
+    public Location getLocation() {
+        Villager v = (Villager) this;
+        return v.getLocation();
+    }
+
 
 }

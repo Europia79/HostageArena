@@ -9,9 +9,9 @@
         <relativePath>../../</relativePath>
     </parent>
     <groupId>mc.euro</groupId>
-    <artifactId>extraction-api</artifactId>
+    <artifactId>extraction-util</artifactId>
     <version>parent</version>
-    <name>extraction-API</name>
+    <name>extraction-util</name>
     <url>http://maven.apache.org</url>
     <properties>
         <maven.build.timestamp.format>MMdd</maven.build.timestamp.format>
@@ -19,10 +19,28 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-debug</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
             <version>1.7.2-R0.3</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>mc.alk</groupId>
+            <artifactId>BattleArena</artifactId>
+            <version>3.9.7.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>mc.alk</groupId>
+            <artifactId>BattleTracker</artifactId>
+            <version>2.5.8.9</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -32,7 +50,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>Extraction-API</finalName>
+        <finalName>Extraction-Utility</finalName>
         <directory>./target</directory>
         <sourceDirectory>./src</sourceDirectory>
         <plugins>

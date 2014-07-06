@@ -19,9 +19,16 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>mc.euro</groupId>
-            <artifactId>extraction-debug</artifactId>
-            <version>parent</version>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.5.2-R1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>craftbukkit</artifactId>
+            <version>1.5.2-R1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>mc.alk</groupId>
@@ -36,10 +43,14 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>craftbukkit</artifactId>
-            <version>1.5.2-R1.0</version>
-            <scope>provided</scope>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-debug</artifactId>
+            <version>parent</version>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-util</artifactId>
+            <version>parent</version>
         </dependency>
     </dependencies>
     <build>

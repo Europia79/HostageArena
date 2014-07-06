@@ -1,8 +1,10 @@
 package mc.euro.extraction;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import mc.alk.arena.BattleArena;
+import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.euro.extraction.debug.*;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -18,8 +20,19 @@ public class HostagePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        debug = new DebugOn(this);
+        saveDefaultConfig();
+        boolean b = getConfig().getBoolean("Debug");
+        if (b) {
+            debug = new DebugOn(this);
+        } else {
+            debug = new DebugOff(this);
+        }
+        debug.log("HostageNames = " + getConfig().getStringList("HostageNames").toString());
+        debug.log("HostageTypes = " + getConfig().getStringList("HostageTypes").toString());
+        debug.log("HostageHP = " + getConfig().getInt("HostageHP", 3));
+        debug.log("ExtractionTimer = " + getConfig().getInt("ExtractionTimer", 30));
         // getServer().getPluginManager().registerEvents(new HostageArena(), this);
+        // registerListeners();
         registerArena();
         // CustomEntityType.registerEntities();
         registerEntites();
@@ -33,14 +46,57 @@ public class HostagePlugin extends JavaPlugin {
         unregisterEntities();
     }
     
-    public Class<?> getNmsClass(String clazz) throws Exception {
-        String mcVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+    public Class<?> getNmsClass(String clazz) throws ClassNotFoundException {
+        String mcVersion;
+        try {
+            mcVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            mcVersion = "vpre";
+        }
         return Class.forName("mc.euro.extraction.nms." + mcVersion + "." + clazz);
     }
     
     private void registerArena() {
         try {
-            // BattleArena.registerCompetition(this, "HostageArena", "vips", getNmsClass("HostageArena"), new BombExecutor());
+            Class arenaClass = getNmsClass("HostageArena");
+            CustomCommandExecutor cmd = getCustomCommandExecutor();
+            debug.log("registering HostageArena class: " + arenaClass.toString());
+            BattleArena.registerCompetition(this, "HostageArena", "vips", 
+                    arenaClass,
+                    cmd);
+        } catch (Exception ex) {
+            Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private CustomCommandExecutor getCustomCommandExecutor() {
+        try {
+            Class cmdClass = getNmsClass("HostageExecutor");
+            return ((CustomCommandExecutor) cmdClass.getConstructor().newInstance());
+        } catch (ClassNotFoundException ex) {
+            getLogger().log(Level.SEVERE, null, ex);
+        } catch (NoSuchMethodException ex) {
+            Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            getLogger().log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            getLogger().log(Level.SEVERE, null, ex);
+        } catch (InvocationTargetException ex) {
+            getLogger().log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            getLogger().log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            getLogger().log(Level.SEVERE, null, ex);
+        }
+        getLogger().info("[HostageArena] method getCustomCommandExecutor() has disabled HostageArena");
+        disableHostageArena();
+        return null;
+    }
+    
+    private void registerListeners() {
+        try {
             getServer().getPluginManager().registerEvents(
                     (Listener) getNmsClass("NpcListener").getConstructor().newInstance(), this);
         } catch (Exception ex) {
@@ -62,5 +118,9 @@ public class HostagePlugin extends JavaPlugin {
         } catch (Exception ex) {
             Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private void disableHostageArena() {
+        Bukkit.getPluginManager().disablePlugin(this);
     }
 }

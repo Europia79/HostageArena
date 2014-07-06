@@ -1,4 +1,16 @@
-# HostageArena config.yml
+# HostageNames: [AnyNumberOfNames] default = VIP
+# HostageTypes: [FARMER, LIBRARIAN, PRIEST, BLACKSMITH, BUTCHER, RANDOM]
+# HostageHP: the number of hits that it takes to kill a hostage.
+# ExtractionTimer: Recommended value of 0 to 60 seconds.
+# FakeName: Name inside the stats database. 
+#  # the database tracks
+#  # 1. Number of Hostages Rescued
+#  # 2. Number of Hostages Killed
+# Debug: true or false
+HostageNames: [Hostage,VIP,Jeb]
+HostageTypes: [LIBRARIAN,PRIEST,RANDOM]
 HostageHP: 3
 ExtractionTimer: 30
-Debug: false
+FakeName: Hostages Extracted Killed
+Debug: true
+arenas: {}
