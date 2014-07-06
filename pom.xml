@@ -13,6 +13,8 @@
     </properties>
     <modules>
         <module>modules/debug</module>
+        <module>modules/Ex-API</module>
+        <module>modules/util</module>
         <module>modules/v1_5_R2</module>
         <module>modules/v1_5_R3</module>
         <module>modules/v1_6_R1</module>
@@ -58,23 +60,7 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
-            </plugin> <!--
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <configuration>
-                    <tasks>
-                        <copy file="target/HostageArena.jar" tofile="../server/plugins/HostageArena.jar"/>
-                    </tasks>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin> -->
+            </plugin>
         </plugins>
     </build>
 </project>

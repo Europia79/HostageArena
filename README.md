@@ -68,17 +68,23 @@ Arena Setup:
 
 `/vips alter <arena> 1` (spawn point for team1)  
 
-`/vips spawnvips <arena>` (sets the spawn location for hostages)  
+`/vips setspawn <arena>` (sets the spawn location for hostages)  
 
-If the `/vips spawnvips <arena>` command ever breaks, then you can 
+If the `/vips setspawn <arena>` command ever breaks, then you can 
 use these two commands instead:  
 
 `/aa select <arena>`  
 
-`/aa addspawn VILLAGER 3 fs=1 rs=2500 index=1`  
+`/aa addspawn VILLAGER 3 fs=0 rs=2500 ds=2500 index=1`  
 
-"aa stands for `/arenaAlter`. `fs` stands for First Spawn (1 second after the match begins). 
-`rs=300` stands for ReSpawn after 2500 seconds (hopefully never).  
+"aa stands for `/arenaAlter`. `fs` stands for First Spawn (normally 0 or 1 seconds after the match beings). 
+`rs=2500` stands for ReSpawn after 2500 seconds (hopefully never). 
+`ds=2500` stands for DeSpawn after 2500 seconds (hopefully never).
+The cmd `/vips setspawn` automatically sets the respawn & despawn time to the duration of the match.
+So if you use `/aa addspawn` then try to set the respawn & despawn time greater than 
+or equal to the match duration. Also, if you use `addspawn` then you can choose 
+3 different spawn locations for each VIP.
+`setspawn` will spawn all 3 hostages in the same room.
 
 Other commands:  
 
@@ -99,7 +105,11 @@ hostages can be safely extracted.
 
 This is how you make extraction points:  
 
-- do `/vips extraction <arena>`  
+
+- do `/vips set|add extractionpoint <arena>`  
+
+
+- or `vips clear extractionpoints <arena>`
 
 
 You can now join a HostageArena.  
@@ -114,7 +124,6 @@ when using LARGE areas, it might lag your server).
 `/vips alter <arena> addregion`  
 
 FYI: You do NOT need to use this last command.  
-The Demolition plugin will automatically reset bases after each match.
 The last command should be only used if you want players to break blocks 
 (or access chests) in the arena and have WorldGuard reset all the broken blocks 
 to their original state after each match.  
@@ -217,7 +226,8 @@ The dev builds are primarily for testing purposes.
 
 To-Do List
 ---
-- implement commands
+- implement win/loss conditions
+- track player stats
 
 
 Bugs to fix:
@@ -227,7 +237,9 @@ Bugs to fix:
 
 Known Issues:
 ---
-- Requires BattleArena v3.9.7.3 or newer.
+- Compatible with any version of BattleArena.
+- Backwards compatible with older versions of Minecraft (1.2.5 to 1.7.9).
+- HostageArena contains version dependent code, therefore it will break and automatically disable itself for new versions of Minecraft.
   
 
 Contact:
