@@ -1,4 +1,4 @@
-package mc.euro.extraction.util;
+package mc.euro.extraction.appljuze;
 
 import java.io.File;
 import java.io.InputStream;
@@ -113,4 +113,8 @@ public class CustomConfig
     }
  
     public Set<String> getKeys() {return this.config.getKeys(false);}
+
+    public List<String> getStringList(String path) {
+        return this.config.getStringList(path);
+    }
 }

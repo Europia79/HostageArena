@@ -1,4 +1,4 @@
-package mc.euro.extraction.util;
+package mc.euro.extraction.appljuze;
 
 import java.io.BufferedReader; 
 import java.io.BufferedWriter;
