@@ -1,6 +1,6 @@
 package mc.euro.extraction.commands;
 
-import mc.euro.extraction.util.VersionFormat;
+import mc.euro.extraction.util.Version;
 
 /**
  * This class handles backwards compatibility for different 
@@ -10,8 +10,8 @@ import mc.euro.extraction.util.VersionFormat;
  * 
  * Version - Syntax
  * 
- * +396200 - /aa addspawn {block} fs=1 rs=500 ds=500 index=1
- * -395850 - /aa addspawn {block} fs=1 rs=500 ds=500 1
+ * +3.9.6.2.0 - /aa addspawn {block} fs=1 rs=500 ds=500 index=1
+ * -3.9.5.8.5 - /aa addspawn {block} fs=1 rs=500 ds=500 1
  * 
  * </pre>
  * 
@@ -32,13 +32,8 @@ public abstract class Command {
                 + " rs=" + duration
                 + " ds=" + duration
                 + " " + index;
-        String cmd = (getVersion() >= 396000) ? cmd1 : cmd2;
+        Version v = Version.getVersion("BattleArena");
+        String cmd = v.isCompatible("3.9.6.2") ? cmd1 : cmd2;
         return cmd;
     }
-    
-    private static int getVersion() {
-        return VersionFormat.getBAversion();
-    }
-    
-
 }
