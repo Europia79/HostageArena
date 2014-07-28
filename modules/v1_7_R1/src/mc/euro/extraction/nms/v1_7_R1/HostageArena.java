@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import mc.alk.arena.competition.match.Match;
-import mc.alk.arena.events.matches.MatchCompletedEvent;
 import mc.alk.arena.events.matches.MatchResultEvent;
+import mc.alk.arena.objects.MatchResult;
 import mc.alk.arena.objects.arenas.Arena;
 import mc.alk.arena.objects.events.ArenaEventHandler;
 import mc.alk.arena.objects.events.EventPriority;
 import mc.alk.arena.objects.spawns.TimedSpawn;
+import mc.alk.arena.objects.teams.ArenaTeam;
+import mc.euro.extraction.api.HostageRoom;
 import mc.euro.extraction.api.SuperPlugin;
 import mc.euro.extraction.util.Attributes;
 import org.bukkit.Bukkit;
@@ -32,13 +35,13 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
  *
  * @author Nikolai
  */
-public class HostageArena extends Arena {
+public class HostageArena extends Arena implements HostageRoom {
     SuperPlugin plugin;
-    public static List<Hostage> allhostages = new ArrayList<Hostage>();
-    Map<Integer, List<Hostage>> hostages = new HashMap<Integer, List<Hostage>>();
+    Map<Integer, List<Hostage>> hostages = new ConcurrentHashMap<Integer, List<Hostage>>();
     Map<Integer, Integer> ids = new HashMap<Integer, Integer>();
     int desiredHP;
     Map<Integer, HostageTracker> trackers;
+    Map<Integer, Map<Integer, Integer>> kills = new ConcurrentHashMap<Integer, Map<Integer, Integer>>();
     
     public HostageArena() {
         this.plugin = (SuperPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
@@ -56,7 +59,7 @@ public class HostageArena extends Arena {
         Villager v = (Villager) e.getEntity();
         v.setCustomName(Attributes.getName(plugin));
         v.setProfession(Attributes.getType(plugin));
-
+        
     }
     
     @ArenaEventHandler (priority=EventPriority.HIGHEST)
@@ -126,11 +129,50 @@ public class HostageArena extends Arena {
     @ArenaEventHandler (priority=EventPriority.HIGH)
     public void onHostageDeath(EntityDeathEvent e) {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
-        
+        int matchID = getMatch().getID();
+        Hostage h = null;
+        try {
+            h = (Hostage) e.getEntity();
+        } catch (ClassCastException ex) {
+            
+        } finally {
+            if (hostages.get(matchID).contains(h)) {
+                hostages.get(matchID).remove(h);
+            }
+        }
         // document which team killed the hostage.
         // End the match if they killed 2 of 3 hostages
         Player killer = e.getEntity().getKiller();
-        plugin.debug().sendMessage(killer, "You have killed a hostage.");
+        killer.sendMessage("You have killed a hostage.");
+        int teamID = getTeam(killer).getId();
+        int k = kills.get(matchID).get(teamID);
+        k = k + 1;
+        if (k >= 2) {
+            MatchResult result = new MatchResult();
+            ArenaTeam losers = getTeam(killer);
+            result.addLoser(losers);
+            ArenaTeam winners = getOtherTeam(losers);
+            result.setVictor(winners);
+            losers.sendMessage("" + losers.getTeamChatColor() 
+                    + "You lost! You have killed too many hostages.");
+            winners.sendMessage("" + winners.getTeamChatColor()
+                    + "You won! The other team killed too many hostages.");
+            getMatch().endMatchWithResult(result);
+        }
+        Map<Integer, Integer> temp = new ConcurrentHashMap<Integer, Integer>();
+        temp.put(teamID, k);
+        kills.put(matchID, temp);
+    }
+    
+    public ArenaTeam getOtherTeam(ArenaTeam team1) {
+        ArenaTeam otherTeam = null;
+        for (ArenaTeam team2 : getMatch().getTeams()) {
+            if (team2.getId() != team1.getId()) {
+                otherTeam = team2;
+                break;
+            }
+        }
+        return otherTeam;
     }
     
     /**
@@ -145,6 +187,11 @@ public class HostageArena extends Arena {
         trackers.put(matchID, new HostageTracker(getMatch()));
         int taskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, trackers.get(matchID), 0L, 20L);
         ids.put(matchID, taskID);
+        kills.put(matchID, new ConcurrentHashMap<Integer, Integer>());
+        for (ArenaTeam t : getMatch().getTeams()) {
+            int teamID = t.getId();
+            kills.get(matchID).put(teamID, 0);
+        }
     }
     
     /**
@@ -154,7 +201,6 @@ public class HostageArena extends Arena {
     public void onComplete() {
         plugin.debug().log("onComplete() has been called");
         int matchID = getMatch().getID();
-        
     }
     
     @ArenaEventHandler
@@ -174,11 +220,12 @@ public class HostageArena extends Arena {
         int matchID = getMatch().getID();
         int taskID = ids.get(matchID);
         plugin.getServer().getScheduler().cancelTask(taskID);
-        
+        kills.remove(matchID);
         
     }
     
-    public List getHostages() {
+    @Override
+    public List getHostages(int matchID) {
         Match m = getMatch();
         Arena arena = m.getArena();
         List tlist = new ArrayList();
