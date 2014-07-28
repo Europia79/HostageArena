@@ -7,11 +7,9 @@ import mc.alk.arena.competition.match.Match;
 import mc.alk.arena.util.SerializerUtil;
 import mc.euro.extraction.api.SuperPlugin;
 import mc.euro.extraction.appljuze.CustomConfig;
-import mc.euro.extraction.debug.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Villager;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
