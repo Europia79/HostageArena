@@ -20,7 +20,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class HostagePlugin extends JavaPlugin implements SuperPlugin {
     
-    JavaPlugin self;
     DebugInterface debug;
     Version server;
     public static final String MAX = "1.7.9-R9.9-SNAPSHOT";
@@ -61,7 +60,6 @@ public class HostagePlugin extends JavaPlugin implements SuperPlugin {
         registerArena();
         // CustomEntityType.registerEntities();
         registerEntites();
-        this.self = this;
     }
 
     @Override
