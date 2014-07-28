@@ -53,11 +53,6 @@
         </dependency>
         <dependency>
             <groupId>mc.euro</groupId>
-            <artifactId>extraction-api</artifactId>
-            <version>parent</version>
-        </dependency>
-        <dependency>
-            <groupId>mc.euro</groupId>
             <artifactId>extraction-util</artifactId>
             <version>parent</version>
         </dependency>
