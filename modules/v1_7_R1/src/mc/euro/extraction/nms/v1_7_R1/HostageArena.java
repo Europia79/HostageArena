@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import mc.alk.arena.competition.match.Match;
+import mc.alk.arena.events.matches.MatchCompletedEvent;
+import mc.alk.arena.events.matches.MatchResultEvent;
 import mc.alk.arena.objects.arenas.Arena;
 import mc.alk.arena.objects.events.ArenaEventHandler;
 import mc.alk.arena.objects.events.EventPriority;
 import mc.alk.arena.objects.spawns.TimedSpawn;
-import mc.euro.extraction.debug.*;
+import mc.euro.extraction.api.SuperPlugin;
 import mc.euro.extraction.util.Attributes;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
@@ -25,28 +27,22 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
  * @author Nikolai
  */
 public class HostageArena extends Arena {
-    JavaPlugin plugin;
+    SuperPlugin plugin;
     public static List<Hostage> allhostages = new ArrayList<Hostage>();
-    List<Hostage> hlist = new ArrayList<Hostage>();
-    Map<Integer, List<Villager>> hostages = new HashMap<Integer, List<Villager>>();
-    DebugInterface debug;
-    int taskID;
-    int counter;
+    Map<Integer, List<Hostage>> hostages = new HashMap<Integer, List<Hostage>>();
+    Map<Integer, Integer> ids = new HashMap<Integer, Integer>();
     int desiredHP;
     Map<Integer, HostageTracker> trackers;
     
     public HostageArena() {
-        this.plugin = (JavaPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
-        this.debug = new DebugOn(this.plugin);
+        this.plugin = (SuperPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
         trackers = new HashMap<Integer, HostageTracker>();
-        this.counter = 0;
         this.desiredHP = plugin.getConfig().getInt("HostageHP", 3);
     }
     
@@ -55,7 +51,7 @@ public class HostageArena extends Arena {
     public void onSpawn(CreatureSpawnEvent e) {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
         if (e.getEntity() instanceof Hostage) return;
-        this.debug.log("CreatureSpawnEvent has detected a Villager spawn.");
+        plugin.debug().log("CreatureSpawnEvent has detected a Villager spawn.");
 
         Villager v = (Villager) e.getEntity();
         v.setCustomName(Attributes.getName(plugin));
@@ -71,7 +67,8 @@ public class HostageArena extends Arena {
     
     @ArenaEventHandler (priority=EventPriority.HIGHEST)
     public void onHostageInteract(PlayerInteractEntityEvent e) {
-        this.debug.log("onHostageInteract() has been called.");
+        plugin.debug().log("onHostageInteract() has been called.");
+        int matchID = getMatch().getID();
         if (e.getRightClicked().getType() != EntityType.VILLAGER) return;
         
         Entity E = e.getRightClicked();
@@ -80,12 +77,12 @@ public class HostageArena extends Arena {
             h = (Hostage) ((CraftEntity)E).getHandle();
         } catch (ClassCastException ex) {
             // Caused by baby villager or a non-Hostage Villager.
-            this.debug.log("onHostageInteract() ClassCastException: most likely "
+            plugin.debug().log("onHostageInteract() ClassCastException: most likely "
                     + "caused by a baby villager or a Villager that is not a Hostage.");
             Villager v = (Villager) e.getRightClicked();
             double HP = v.getHealth();
             Profession p = v.getProfession();
-            String name = v.getCustomName();
+            String customName = v.getCustomName();
             Hostage hostage = new Hostage(((CraftWorld) v.getWorld()).getHandle(), 
                     Attributes.getType(plugin).getId(), e.getPlayer().getName());
             hostage.setLocation(v.getLocation().getX(), v.getLocation().getY(), v.getLocation().getZ(), 
@@ -94,21 +91,21 @@ public class HostageArena extends Arena {
             ((CraftWorld) v.getWorld()).getHandle().addEntity(hostage);
             hostage.setHealth((float) HP);
             hostage.setProfession(p.getId());
-            hostage.setCustomName(name);
+            hostage.setCustomName(customName);
+            hostages.get(matchID).add(hostage);
             return;
         }
-        
         
         Player p = (Player) e.getPlayer();
         
         if (h.isFollowing()) {
-            this.debug.log("Hostage was following " + h.getOwnerName());
-            this.debug.log("Hostage is now staying.");
+            plugin.debug().log("Hostage was following " + h.getOwnerName());
+            plugin.debug().log("Hostage is now staying.");
             h.stay();
         } else if (h.isStopped()) {
             h.follow(p.getName());
-            this.debug.log("Hostage was staying.");
-            this.debug.log("Hostage is now following " + h.getOwnerName());
+            plugin.debug().log("Hostage was staying.");
+            plugin.debug().log("Hostage is now following " + h.getOwnerName());
         }
     }
     
@@ -117,11 +114,11 @@ public class HostageArena extends Arena {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
         if (!(e.getDamager() instanceof Player)) return;
         Player player = (Player) e.getDamager();
-        this.debug.sendMessage(player, "Hostage has been damaged");
+        plugin.debug().sendMessage(player, "Hostage has been damaged");
         // dmg = (TotalHP + 0.01) / DesiredHP;
         Villager v = (Villager) e.getEntity();
         double dmg = (v.getMaxHealth() + 0.01) / this.desiredHP;
-        this.debug.log("Hostage took " + dmg + " damage");
+        plugin.debug().log("Hostage took " + dmg + " damage");
         e.setDamage(dmg);
 
     }
@@ -133,7 +130,7 @@ public class HostageArena extends Arena {
         // document which team killed the hostage.
         // End the match if they killed 2 of 3 hostages
         Player killer = e.getEntity().getKiller();
-        debug.sendMessage(killer, "You have killed a hostage.");
+        plugin.debug().sendMessage(killer, "You have killed a hostage.");
     }
     
     /**
@@ -142,10 +139,12 @@ public class HostageArena extends Arena {
     @Override
     public void onStart() {
         super.onStart();
-        debug.msgArenaPlayers(getMatch().getPlayers(), "onStart() has been called.");
         int matchID = getMatch().getID();
+        plugin.debug().msgArenaPlayers(getMatch().getPlayers(), "onStart() has been called.");
+        hostages.put(matchID, new ArrayList<Hostage>());
         trackers.put(matchID, new HostageTracker(getMatch()));
-        this.taskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, trackers.get(matchID), 0L, 20L);
+        int taskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, trackers.get(matchID), 0L, 20L);
+        ids.put(matchID, taskID);
     }
     
     /**
@@ -153,7 +152,17 @@ public class HostageArena extends Arena {
      */
     @Override
     public void onComplete() {
-        debug.log("onComplete() has been called");
+        plugin.debug().log("onComplete() has been called");
+        int matchID = getMatch().getID();
+        
+    }
+    
+    @ArenaEventHandler
+    public void onMatchResult(MatchResultEvent e) {
+        int matchID = getMatch().getID();
+        for (Hostage h : hostages.get(matchID)) {
+            h.removeEntity();
+        }
     }
     
     /**
@@ -161,8 +170,12 @@ public class HostageArena extends Arena {
      */
     @Override
     public void onFinish() {
-        debug.log("onFinish() has been called");
+        plugin.debug().log("onFinish() has been called");
+        int matchID = getMatch().getID();
+        int taskID = ids.get(matchID);
         plugin.getServer().getScheduler().cancelTask(taskID);
+        
+        
     }
     
     public List getHostages() {
@@ -174,9 +187,5 @@ public class HostageArena extends Arena {
             if (en instanceof Villager) tlist.add(en);
         }
         return tlist;
-    }
-    
-    public void setDebug(boolean b) {
-        
     }
 }

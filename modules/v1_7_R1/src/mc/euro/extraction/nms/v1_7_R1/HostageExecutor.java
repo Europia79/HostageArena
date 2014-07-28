@@ -2,21 +2,20 @@ package mc.euro.extraction.nms.v1_7_R1;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import mc.alk.arena.BattleArena;
+import mc.alk.arena.controllers.BattleArenaController;
 import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.alk.arena.executors.MCCommand;
 import mc.alk.arena.objects.arenas.Arena;
-import mc.alk.arena.objects.spawns.SpawnLocation;
 import mc.alk.arena.util.SerializerUtil;
+import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.appljuze.CustomConfig;
 import mc.euro.extraction.debug.*;
 import mc.euro.extraction.commands.Command;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
@@ -24,33 +23,39 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class HostageExecutor extends CustomCommandExecutor {
     
-    JavaPlugin plugin;
-    DebugInterface debug;
+    SuperPlugin plugin;
     
-    public HostageExecutor() {
-        this.plugin = (JavaPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
-        boolean b = plugin.getConfig().getBoolean("Debug");
-        if (b == true) {
-            this.debug = new DebugOn(plugin);
-        } else {
-            this.debug = new DebugOff(plugin);
-        }
+    public HostageExecutor(SuperPlugin p) {
+        this.plugin = p;
     }
     
-    @MCCommand(cmds={"set","add"},subCmds={"extractionpoint"}, op=true)
+    @MCCommand(cmds={"list"},subCmds={"extractionpoint","extractionpoints"}, op=true)
+    public boolean listExtractionPoints(CommandSender sender, Arena arena) {
+        return true;
+    }
+    
+    @MCCommand(cmds={"set"},subCmds={"extractionpoint"}, op=true)
     public boolean setExtractionPoint(Player sender, Arena arena) {
+        clearExtractionPoints(sender, arena);
+        addExtractionPoint(sender, arena);
+        return true;
+    }
+    @MCCommand(cmds={"add"},subCmds={"extractionpoint"}, op=true)
+    public boolean addExtractionPoint(Player sender, Arena arena) {
         // path = arenas.{arena}.extractionpoints
+        BattleArenaController bac = BattleArena.getBAController();
         String path = "arenas." + arena.getName() + ".extractionpoints";
         List<String> locations = new ArrayList<String>();
-        if (plugin.getConfig().getStringList(path) != null) {
-            locations = plugin.getConfig().getStringList(path);
+        CustomConfig config = plugin.getConfig("arenas.yml");
+        if (config.getStringList(path) != null) {
+            locations = plugin.getConfig("arenas.yml").getStringList(path);
         }
         Location loc = sender.getLocation();
         String stringLocation = SerializerUtil.getLocString(loc);
         locations.add(stringLocation);
-        plugin.getConfig().set(path, locations);
-        plugin.getConfig().set("arenas." + arena.getName() + ".path", path);
-        plugin.saveConfig();
+        config.set(path, locations);
+        config.saveConfig();
+        // bac.updateArena(arena);
         sender.sendMessage("Extraction point set!");
         return true;
     }
@@ -58,19 +63,20 @@ public class HostageExecutor extends CustomCommandExecutor {
     @MCCommand(cmds={"clear"}, subCmds={"extractionpoints"},op=true)
     public boolean clearExtractionPoints(CommandSender sender, Arena arena) {
         // path = arenas.{arena}.extractionpoints
+        CustomConfig config = plugin.getConfig("arenas.yml");
         String path = "arenas." + arena.getName() + ".extractionpoints";
-        plugin.getConfig().set(path, null);
-        plugin.saveConfig();
-        sender.sendMessage("All extraction points have been deleted.");
+        config.set(path, null);
+        config.saveConfig();
+        sender.sendMessage("All extraction points for this arena have been deleted.");
         return true;
     }
     
     @MCCommand(cmds={"setspawn"}, perm="hostagearena.vips.spawn")
     public boolean setHostageSpawn(Player sender, Arena arena) {
-        debug.log("arena = " + arena.getName());
+        plugin.debug().log("arena = " + arena.getName());
         int matchTime = arena.getParams().getMatchTime();
         
-        debug.log("setHostageSpawn() MatchTime = " + matchTime);
+        plugin.debug().log("setHostageSpawn() MatchTime = " + matchTime);
         
         String selectArena = "aa select " + arena.getName();
         
@@ -105,7 +111,7 @@ public class HostageExecutor extends CustomCommandExecutor {
     
     @MCCommand(cmds={"spawn"})
     public boolean spawnHostage(Player sender) {
-        
+        sender.sendMessage("Command not yet implemented.");
         return true;
     }
     
@@ -115,20 +121,15 @@ public class HostageExecutor extends CustomCommandExecutor {
      */
     @MCCommand(cmds={"debug"}, perm="bombarena.debug", usage="debug")
     public boolean toggleDebug(CommandSender sender) {
-        if (plugin.debug instanceof DebugOn) {
-            plugin.debug = new DebugOff(plugin);
-            plugin.getConfig().set("Debug", false);
-            plugin.saveConfig();
-            sender.sendMessage("Debugging mode for the BombArena has been turned off.");
+        if (plugin.debug() instanceof DebugOn) {
+            plugin.setDebugging(false);
+            sender.sendMessage("Debugging mode for the HostageArena has been turned off.");
             return true;
-        } else if (plugin.debug instanceof DebugOff) {
-            plugin.debug = new DebugOn(plugin);
-            plugin.getConfig().set("Debug", true);
-            plugin.saveConfig();
-            sender.sendMessage("Debugging mode for the BombArena has been turned on.");
+        } else {
+            plugin.setDebugging(true);
+            sender.sendMessage("Debugging mode for the HostageArena has been turned on.");
             return true;
         }
-        return false;
     }
     
 }

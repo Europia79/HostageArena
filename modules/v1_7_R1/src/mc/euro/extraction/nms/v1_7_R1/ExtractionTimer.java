@@ -2,7 +2,7 @@ package mc.euro.extraction.nms.v1_7_R1;
 
 import java.util.ArrayList;
 import java.util.List;
-import mc.euro.extraction.util.ConfigManager;
+import mc.euro.extraction.appljuze.ConfigManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 

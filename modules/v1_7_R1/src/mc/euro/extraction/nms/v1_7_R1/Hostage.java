@@ -11,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R1.util.UnsafeList;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  *
@@ -105,6 +104,10 @@ public class Hostage extends EntityVillager implements EntityOwnable {
     public Location getLocation() {
         Villager v = (Villager) this;
         return v.getLocation();
+    }
+
+    void removeEntity() {
+        world.removeEntity(this);
     }
 
 

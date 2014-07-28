@@ -5,7 +5,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import mc.alk.arena.BattleArena;
 import mc.alk.arena.executors.CustomCommandExecutor;
+import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.appljuze.ConfigManager;
+import mc.euro.extraction.appljuze.CustomConfig;
 import mc.euro.extraction.debug.*;
+import mc.euro.extraction.util.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,29 +18,50 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author Nikolai
  */
-public class HostagePlugin extends JavaPlugin {
+public class HostagePlugin extends JavaPlugin implements SuperPlugin {
     
+    JavaPlugin self;
     DebugInterface debug;
+    Version server;
+    public static final String MAX = "1.7.9-R9.9-SNAPSHOT";
+    public static final String MIN = "1.2.5";
+    String NMS;
+    
+    ConfigManager manager;
 
     @Override
     public void onEnable() {
+        NMS = Version.getNmsVersion().toString();
+        server = Version.getServerVersion();
+        if (!server.isSupported(MAX) || !server.isCompatible(MIN)) {
+            getLogger().info("VirtualPlayers is not compatible with your server.");
+            getLogger().info("The maximum supported version is " + MAX);
+            getLogger().info("The minimum capatible version is " + MIN);
+            Bukkit.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         saveDefaultConfig();
+        manager = new ConfigManager(this);
+        
+        debug = new DebugOn(this);
+
+        debug.log("HostageNames = " + getConfig().getStringList("HostageNames").toString());
+        debug.log("HostageTypes = " + getConfig().getStringList("HostageTypes").toString());
+        debug.log("HostageHP = " + getConfig().getInt("HostageHP", 3));
+        debug.log("ExtractionTimer = " + getConfig().getInt("ExtractionTimer", 30));
+        
         boolean b = getConfig().getBoolean("Debug");
         if (b) {
             debug = new DebugOn(this);
         } else {
             debug = new DebugOff(this);
         }
-        debug.log("HostageNames = " + getConfig().getStringList("HostageNames").toString());
-        debug.log("HostageTypes = " + getConfig().getStringList("HostageTypes").toString());
-        debug.log("HostageHP = " + getConfig().getInt("HostageHP", 3));
-        debug.log("ExtractionTimer = " + getConfig().getInt("ExtractionTimer", 30));
         // getServer().getPluginManager().registerEvents(new HostageArena(), this);
         // registerListeners();
         registerArena();
         // CustomEntityType.registerEntities();
         registerEntites();
-        
+        this.self = this;
     }
 
     @Override
@@ -47,13 +72,7 @@ public class HostagePlugin extends JavaPlugin {
     }
     
     public Class<?> getNmsClass(String clazz) throws ClassNotFoundException {
-        String mcVersion;
-        try {
-            mcVersion = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            mcVersion = "vpre";
-        }
-        return Class.forName("mc.euro.extraction.nms." + mcVersion + "." + clazz);
+        return Class.forName("mc.euro.extraction.nms." + NMS + "." + clazz);
     }
     
     private void registerArena() {
@@ -72,7 +91,8 @@ public class HostagePlugin extends JavaPlugin {
     private CustomCommandExecutor getCustomCommandExecutor() {
         try {
             Class cmdClass = getNmsClass("HostageExecutor");
-            return ((CustomCommandExecutor) cmdClass.getConstructor().newInstance());
+            return ((CustomCommandExecutor) cmdClass
+                    .getConstructor(new Class[]{SuperPlugin.class}).newInstance(this));
         } catch (ClassNotFoundException ex) {
             getLogger().log(Level.SEVERE, null, ex);
         } catch (NoSuchMethodException ex) {
@@ -122,5 +142,35 @@ public class HostagePlugin extends JavaPlugin {
     
     private void disableHostageArena() {
         Bukkit.getPluginManager().disablePlugin(this);
+    }
+
+    @Override
+    public DebugInterface debug() {
+        return this.debug;
+    }
+
+    @Override
+    public boolean toggleDebug() {
+        if (debug instanceof DebugOn) {
+            debug = new DebugOff(this);
+            return false;
+        } else {
+            debug = new DebugOn(this);
+        }
+        return true;
+    }
+
+    @Override
+    public void setDebugging(boolean enable) {
+        if (enable == true) {
+            debug = new DebugOn(this);
+        } else {
+            debug = new DebugOff(this);
+        }
+    }
+    
+    @Override
+    public CustomConfig getConfig(String fileName) {
+        return manager.getNewConfig(fileName);
     }
 }
