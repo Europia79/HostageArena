@@ -26,6 +26,7 @@ import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -126,6 +127,19 @@ public class HostageArena extends Arena implements HostageRoom {
 
     }
     
+    @ArenaEventHandler (priority=EventPriority.HIGHEST)
+    public void onDamagedEvent(EntityDamageEvent e) {
+        if (e.getEntity().getType() != EntityType.VILLAGER) return;
+        if (e instanceof EntityDamageByEntityEvent) {
+            EntityDamageByEntityEvent event = (EntityDamageByEntityEvent) e;
+            if (!(event.getDamager() instanceof Player)) {
+                e.setCancelled(true);
+            }
+        } else {
+            e.setCancelled(true);
+        }
+    }
+    
     @ArenaEventHandler (priority=EventPriority.HIGH)
     public void onHostageDeath(EntityDeathEvent e) {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
@@ -224,8 +238,7 @@ public class HostageArena extends Arena implements HostageRoom {
         
     }
     
-    @Override
-    public List getHostages(int matchID) {
+    public List getHostages() {
         Match m = getMatch();
         Arena arena = m.getArena();
         List tlist = new ArrayList();
@@ -234,5 +247,10 @@ public class HostageArena extends Arena implements HostageRoom {
             if (en instanceof Villager) tlist.add(en);
         }
         return tlist;
+    }
+    
+    @Override
+    public List getHostages(int matchID) {
+        return hostages.get(matchID);
     }
 }
