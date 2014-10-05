@@ -33,7 +33,7 @@
         <dependency>
             <groupId>mc.alk</groupId>
             <artifactId>BattleArena</artifactId>
-            <version>3.9.7.8</version>
+            <version>3.9.7.9</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
