@@ -17,8 +17,8 @@ import org.bukkit.entity.Villager;
  */
 public class HostageTracker implements Runnable {
     
-    public static List<Hostage> allhostages;
-    public List<Hostage> hostages;
+    public static List<CraftHostage> allhostages;
+    public List<CraftHostage> hostages;
     
     SuperPlugin plugin;
     Match match;

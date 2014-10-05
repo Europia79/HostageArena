@@ -1,4 +1,4 @@
-package mc.euro.extraction.nms.v1_7_R1;
+package mc.euro.extraction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,6 +7,7 @@ import mc.alk.arena.competition.match.Match;
 import mc.alk.arena.util.SerializerUtil;
 import mc.euro.extraction.api.SuperPlugin;
 import mc.euro.extraction.appljuze.CustomConfig;
+import mc.euro.extraction.nms.Hostage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Villager;
@@ -22,10 +23,15 @@ public class HostageTracker implements Runnable {
     
     SuperPlugin plugin;
     Match match;
+    HostageArena arena;
     Location extraction;
     List<Location> extractions;
     int taskID;
     
+    public HostageTracker(HostageArena a) {
+        this.plugin = (SuperPlugin) Bukkit.getPluginManager().getPlugin("HostageArena");
+        this.arena = a;
+    }
     public HostageTracker(Match m) {
         this.plugin = (SuperPlugin) Bukkit.getPluginManager().getPlugin("HostageArena");
         this.match = m;

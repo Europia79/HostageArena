@@ -16,7 +16,7 @@ public class ExtractionTimer extends BukkitRunnable {
     SuperPlugin plugin;
     int duration;
     Match match;
-    List<Hostage> hostages = new ArrayList<Hostage>();
+    List<CraftHostage> hostages = new ArrayList<CraftHostage>();
     
     public ExtractionTimer(Match m) {
         this.plugin = (SuperPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");

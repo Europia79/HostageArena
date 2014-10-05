@@ -17,18 +17,18 @@ import org.bukkit.plugin.Plugin;
  * 
  * @author Europia79, BigTeddy98, Tux2
  */
-public class Version implements Comparable<String> {
+public class BukkitVersion implements Comparable<String> {
     
     Plugin plugin;
     String version;
     String separator = "[.-]";
     
-    private Version(Version v) {
+    private BukkitVersion(BukkitVersion v) {
         this.plugin = v.getPlugin();
         this.version = v.toString();
     }
 
-    public Version(String pluginName) {
+    public BukkitVersion(String pluginName) {
         this.plugin = null;
         if (pluginName.equalsIgnoreCase("net.minecraft.server")) {
             try {
@@ -42,30 +42,30 @@ public class Version implements Comparable<String> {
         this.version = (plugin == null) ? null : plugin.getDescription().getVersion();
     }
     
-    public Version(Server server) {
+    public BukkitVersion(Server server) {
         this.plugin = null;
         this.version = server.getBukkitVersion();
     }
     
-    public Version(Plugin plugin) {
+    public BukkitVersion(Plugin plugin) {
         this.plugin = (plugin == null) ? null : plugin;
         this.version = (plugin == null) ? null : plugin.getDescription().getVersion();
     }
     
-    public static Version getVersion(Plugin plugin) {
-        return new Version(plugin);
+    public static BukkitVersion getVersion(Plugin plugin) {
+        return new BukkitVersion(plugin);
     }
     
-    public static Version getVersion(String pluginName) {
-        return new Version(pluginName);
+    public static BukkitVersion getVersion(String pluginName) {
+        return new BukkitVersion(pluginName);
     }
     
-    public static Version getServerVersion() {
-        return new Version(Bukkit.getServer());
+    public static BukkitVersion getServerVersion() {
+        return new BukkitVersion(Bukkit.getServer());
     }
     
-    public static Version getNmsVersion() {
-        return new Version("net.minecraft.server");
+    public static BukkitVersion getNmsVersion() {
+        return new BukkitVersion("net.minecraft.server");
     }
     
     public Plugin getPlugin() {
@@ -151,7 +151,7 @@ public class Version implements Comparable<String> {
         return temp;
     }
     
-    public Version setSeparator(String regex) {
+    public BukkitVersion setSeparator(String regex) {
         this.separator = regex;
         return this;
     }
@@ -185,18 +185,18 @@ public class Version implements Comparable<String> {
         return false;
     }
     
-    public Version getSubVersion(String regex) {
+    public BukkitVersion getSubVersion(String regex) {
         if (version == null) return this;
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(this.version);
         if (matcher.find()) {
             String dev = matcher.group();
-            return new Version(this).setVersion(dev);
+            return new BukkitVersion(this).setVersion(dev);
         }
-        return new Version(this);
+        return new BukkitVersion(this);
     }
     
-    private Version setVersion(String subVersion) {
+    private BukkitVersion setVersion(String subVersion) {
         this.version = subVersion;
         return this;
     }

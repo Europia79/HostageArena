@@ -1,6 +1,6 @@
 package mc.euro.extraction.commands;
 
-import mc.euro.extraction.util.Version;
+import mc.euro.extraction.util.BukkitVersion;
 
 /**
  * This class handles backwards compatibility for different 
@@ -32,7 +32,7 @@ public abstract class Command {
                 + " rs=" + duration
                 + " ds=" + duration
                 + " " + index;
-        Version v = Version.getVersion("BattleArena");
+        BukkitVersion v = BukkitVersion.getVersion("BattleArena");
         String cmd = v.isCompatible("3.9.6.2") ? cmd1 : cmd2;
         return cmd;
     }

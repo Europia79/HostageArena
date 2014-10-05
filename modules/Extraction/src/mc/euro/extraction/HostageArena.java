@@ -1,4 +1,4 @@
-package mc.euro.extraction.nms.v1_7_R1;
+package mc.euro.extraction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,15 +15,14 @@ import mc.alk.arena.objects.spawns.TimedSpawn;
 import mc.alk.arena.objects.teams.ArenaTeam;
 import mc.euro.extraction.api.HostageRoom;
 import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.nms.Hostage;
+import mc.euro.extraction.nms.NPCFactory;
 import mc.euro.extraction.util.Attributes;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_7_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
-import org.bukkit.entity.Villager.Profession;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -76,29 +75,9 @@ public class HostageArena extends Arena implements HostageRoom {
         if (e.getRightClicked().getType() != EntityType.VILLAGER) return;
         
         Entity E = e.getRightClicked();
-        Hostage h;
-        try {
-            h = (Hostage) ((CraftEntity)E).getHandle();
-        } catch (ClassCastException ex) {
-            // Caused by baby villager or a non-Hostage Villager.
-            plugin.debug().log("onHostageInteract() ClassCastException: most likely "
-                    + "caused by a baby villager or a Villager that is not a Hostage.");
-            Villager v = (Villager) e.getRightClicked();
-            double HP = v.getHealth();
-            Profession p = v.getProfession();
-            String customName = v.getCustomName();
-            Hostage hostage = new Hostage(((CraftWorld) v.getWorld()).getHandle(), 
-                    Attributes.getType(plugin).getId(), e.getPlayer().getName());
-            hostage.setLocation(v.getLocation().getX(), v.getLocation().getY(), v.getLocation().getZ(), 
-                    v.getLocation().getYaw(), v.getLocation().getPitch());
-            ((CraftWorld) v.getWorld()).getHandle().removeEntity(((CraftEntity) e.getRightClicked()).getHandle());
-            ((CraftWorld) v.getWorld()).getHandle().addEntity(hostage);
-            hostage.setHealth((float) HP);
-            hostage.setProfession(p.getId());
-            hostage.setCustomName(customName);
-            hostages.get(matchID).add(hostage);
-            return;
-        }
+        
+        NPCFactory factory = NPCFactory.newInstance(plugin);
+        Hostage h = factory.getHostage(E);
         
         Player p = (Player) e.getPlayer();
         

@@ -8,8 +8,10 @@ import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.euro.extraction.api.SuperPlugin;
 import mc.euro.extraction.appljuze.ConfigManager;
 import mc.euro.extraction.appljuze.CustomConfig;
+import mc.euro.extraction.commands.HostageExecutor;
 import mc.euro.extraction.debug.*;
 import mc.euro.extraction.util.Version;
+import mc.euro.extraction.util.VersionFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,8 +32,8 @@ public class HostagePlugin extends JavaPlugin implements SuperPlugin {
 
     @Override
     public void onEnable() {
-        NMS = Version.getNmsVersion().toString();
-        server = Version.getServerVersion();
+        NMS = VersionFactory.getNmsVersion().toString();
+        server = VersionFactory.getServerVersion();
         if (!server.isSupported(MAX) || !server.isCompatible(MIN)) {
             getLogger().info("VirtualPlayers is not compatible with your server.");
             getLogger().info("The maximum supported version is " + MAX);
@@ -57,7 +59,9 @@ public class HostagePlugin extends JavaPlugin implements SuperPlugin {
         }
         // getServer().getPluginManager().registerEvents(new HostageArena(), this);
         // registerListeners();
-        registerArena();
+        // registerArena();
+        CustomCommandExecutor cmd = new HostageExecutor(this);
+        BattleArena.registerCompetition(this, "HostageArena", "vips", HostageArena.class, cmd);
         // CustomEntityType.registerEntities();
         registerEntites();
     }

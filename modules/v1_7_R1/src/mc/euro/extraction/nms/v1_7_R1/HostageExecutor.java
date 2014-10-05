@@ -43,7 +43,6 @@ public class HostageExecutor extends CustomCommandExecutor {
     @MCCommand(cmds={"add"},subCmds={"extractionpoint"}, op=true)
     public boolean addExtractionPoint(Player sender, Arena arena) {
         // path = arenas.{arena}.extractionpoints
-        BattleArenaController bac = BattleArena.getBAController();
         String path = "arenas." + arena.getName() + ".extractionpoints";
         List<String> locations = new ArrayList<String>();
         CustomConfig config = plugin.getConfig("arenas.yml");
@@ -55,7 +54,7 @@ public class HostageExecutor extends CustomCommandExecutor {
         locations.add(stringLocation);
         config.set(path, locations);
         config.saveConfig();
-        // bac.updateArena(arena);
+        BattleArena.saveArenas(plugin);
         sender.sendMessage("Extraction point set!");
         return true;
     }

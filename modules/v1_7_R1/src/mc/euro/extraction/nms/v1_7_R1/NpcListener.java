@@ -43,7 +43,7 @@ public class NpcListener implements Listener {
         this.debug.log("CreatureSpawnEvent has detected a Villager spawn.");
 
             Villager v = (Villager) e.getEntity();
-            Hostage hostage = new Hostage(((CraftWorld) v.getWorld()).getHandle());
+            CraftHostage hostage = new CraftHostage(((CraftWorld) v.getWorld()).getHandle());
             hostage.setLocation(v.getLocation().getX(), v.getLocation().getY(), v.getLocation().getZ(), 
                     v.getLocation().getYaw(), v.getLocation().getPitch());
             ((CraftWorld) v.getWorld()).getHandle().removeEntity(((CraftEntity) e.getEntity()).getHandle());
