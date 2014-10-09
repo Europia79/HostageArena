@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>mc.euro</groupId>
-            <artifactId>extraction-debug</artifactId>
+            <artifactId>extraction-api</artifactId>
             <version>parent</version>
         </dependency>
         <dependency>

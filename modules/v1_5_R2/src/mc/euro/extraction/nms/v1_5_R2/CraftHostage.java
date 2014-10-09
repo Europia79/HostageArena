@@ -14,13 +14,13 @@ import org.bukkit.entity.Player;
  *
  * @author Nikolai
  */
-public class Hostage extends EntityVillager {
+public class CraftHostage extends EntityVillager {
     
     String owner;
     int ownerID;
     World world2;
     
-    public Hostage(World w) {
+    public CraftHostage(World w) {
         super(w);
         this.world2 = w;
         clearPathfinders();
@@ -29,7 +29,7 @@ public class Hostage extends EntityVillager {
         this.setHealth(20);
     }
     
-    public Hostage(World w, int profession) {
+    public CraftHostage(World w, int profession) {
         super(w, profession);
         this.world2 = w;
         clearPathfinders();

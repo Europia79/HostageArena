@@ -8,7 +8,7 @@ import org.bukkit.plugin.Plugin;
  *
  * @author Nikolai
  */
-public interface SuperPlugin extends Plugin {
+public interface IHostagePlugin extends Plugin {
     
     public DebugInterface debug();
     public boolean toggleDebug();

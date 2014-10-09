@@ -18,7 +18,7 @@ import org.bukkit.entity.EntityType;
  */
 public enum CustomEntityType {
 
-HOSTAGE("Villager", 120, EntityType.VILLAGER, EntityVillager.class, Hostage.class);
+HOSTAGE("Villager", 120, EntityType.VILLAGER, EntityVillager.class, CraftHostage.class);
 
 public String author = "TeeePeee";
 public String source = "http://forums.bukkit.org/threads/nms-tutorial-how-to-override-default-minecraft-mobs.216788/";

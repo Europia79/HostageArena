@@ -2,7 +2,7 @@ package mc.euro.extraction.util;
 
 import java.util.List;
 import java.util.Random;
-import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.api.IHostagePlugin;
 import org.bukkit.entity.Villager.Profession;
 
 /**
@@ -14,11 +14,11 @@ public class Attributes {
     private static int tCounter = 0;
     private static int nCounter = 0;
     
-    public static Profession getType(SuperPlugin plugin) {
+    public static Profession getType(IHostagePlugin plugin) {
         return getType(plugin, "HostageTypes");
     }
     
-    private static Profession getType(SuperPlugin plugin, String path) {
+    private static Profession getType(IHostagePlugin plugin, String path) {
         Profession p = Profession.FARMER;
         Attributes.tCounter = Attributes.tCounter + 1;
         List<String> professions = plugin.getConfig().getStringList(path);
@@ -33,15 +33,15 @@ public class Attributes {
         return p;
     }
     
-    private static Profession getRandomType() {
+    public static Profession getRandomType() {
         return Profession.getProfession(new Random().nextInt(5));
     }
     
-    public static String getName(SuperPlugin plugin) {
+    public static String getName(IHostagePlugin plugin) {
         return getName(plugin, "HostageNames");
     }
     
-    private static String getName(SuperPlugin plugin, String path) {
+    private static String getName(IHostagePlugin plugin, String path) {
         String name = "VIP";
         Attributes.nCounter = Attributes.nCounter + 1;
         List<String> names = plugin.getConfig().getStringList(path);

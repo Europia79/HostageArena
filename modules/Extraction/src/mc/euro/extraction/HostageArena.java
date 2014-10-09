@@ -2,9 +2,11 @@ package mc.euro.extraction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import mc.alk.arena.competition.match.Match;
 import mc.alk.arena.events.matches.MatchResultEvent;
 import mc.alk.arena.objects.MatchResult;
@@ -13,12 +15,14 @@ import mc.alk.arena.objects.events.ArenaEventHandler;
 import mc.alk.arena.objects.events.EventPriority;
 import mc.alk.arena.objects.spawns.TimedSpawn;
 import mc.alk.arena.objects.teams.ArenaTeam;
+import mc.alk.arena.serializers.Persist;
 import mc.euro.extraction.api.HostageRoom;
-import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.api.IHostagePlugin;
 import mc.euro.extraction.nms.Hostage;
 import mc.euro.extraction.nms.NPCFactory;
 import mc.euro.extraction.util.Attributes;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -35,18 +39,39 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
  *
  * @author Nikolai
  */
-public class HostageArena extends Arena implements HostageRoom {
-    SuperPlugin plugin;
-    Map<Integer, List<Hostage>> hostages = new ConcurrentHashMap<Integer, List<Hostage>>();
-    Map<Integer, Integer> ids = new HashMap<Integer, Integer>();
+public class HostageArena extends Arena {
+    IHostagePlugin plugin;
+    NPCFactory factory;
+    Set<Hostage> vips = new LinkedHashSet<Hostage>(6);
+    List<Hostage> hostages = new ArrayList<Hostage>(6);
     int desiredHP;
-    Map<Integer, HostageTracker> trackers;
-    Map<Integer, Map<Integer, Integer>> kills = new ConcurrentHashMap<Integer, Map<Integer, Integer>>();
+    HostageTracker tracker;
+    int taskID;
+    /**
+     * {@literal <pre>Map<teamID, kills></pre>}
+     */
+    Map<Integer, Integer> kills = new HashMap<Integer, Integer>();
+    
+    @Persist
+    List<Location> epoints = new CopyOnWriteArrayList<Location>();
     
     public HostageArena() {
-        this.plugin = (SuperPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
-        trackers = new HashMap<Integer, HostageTracker>();
+        this.plugin = (IHostagePlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
+        // trackers = new HashMap<Integer, HostageTracker>();
         this.desiredHP = plugin.getConfig().getInt("HostageHP", 3);
+        this.factory = NPCFactory.newInstance(plugin);
+    }
+    
+    public void addExtractionPoint(Location loc) {
+        epoints.add(loc);
+    }
+    
+    public void clearExtractionPoints() {
+        epoints.clear();
+    }
+    
+    public List<Location> getExtractionPoints() {
+        return new ArrayList<Location>(epoints);
     }
     
     // @ArenaEventHandler (priority=EventPriority.HIGHEST,entityMethod="getEntity")
@@ -60,6 +85,14 @@ public class HostageArena extends Arena implements HostageRoom {
         v.setCustomName(Attributes.getName(plugin));
         v.setProfession(Attributes.getType(plugin));
         
+        // getHostage() is glitchy when located inside CreatureSpawnEvent
+        /*
+        Hostage hostage = factory.getHostage(v);
+        
+        if (!vips.contains(hostage)) {
+            vips.add(hostage);
+        }
+        */
     }
     
     @ArenaEventHandler (priority=EventPriority.HIGHEST)
@@ -71,7 +104,6 @@ public class HostageArena extends Arena implements HostageRoom {
     @ArenaEventHandler (priority=EventPriority.HIGHEST)
     public void onHostageInteract(PlayerInteractEntityEvent e) {
         plugin.debug().log("onHostageInteract() has been called.");
-        int matchID = getMatch().getID();
         if (e.getRightClicked().getType() != EntityType.VILLAGER) return;
         
         Entity E = e.getRightClicked();
@@ -122,15 +154,14 @@ public class HostageArena extends Arena implements HostageRoom {
     @ArenaEventHandler (priority=EventPriority.HIGH)
     public void onHostageDeath(EntityDeathEvent e) {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
-        int matchID = getMatch().getID();
         Hostage h = null;
         try {
             h = (Hostage) e.getEntity();
         } catch (ClassCastException ex) {
             
         } finally {
-            if (hostages.get(matchID).contains(h)) {
-                hostages.get(matchID).remove(h);
+            if (vips.contains(h)) {
+                vips.remove(h);
             }
         }
         // document which team killed the hostage.
@@ -138,7 +169,7 @@ public class HostageArena extends Arena implements HostageRoom {
         Player killer = e.getEntity().getKiller();
         killer.sendMessage("You have killed a hostage.");
         int teamID = getTeam(killer).getId();
-        int k = kills.get(matchID).get(teamID);
+        int k = kills.get(teamID);
         k = k + 1;
         if (k >= 2) {
             MatchResult result = new MatchResult();
@@ -152,9 +183,7 @@ public class HostageArena extends Arena implements HostageRoom {
                     + "You won! The other team killed too many hostages.");
             getMatch().endMatchWithResult(result);
         }
-        Map<Integer, Integer> temp = new ConcurrentHashMap<Integer, Integer>();
-        temp.put(teamID, k);
-        kills.put(matchID, temp);
+        kills.put(teamID, k);
     }
     
     public ArenaTeam getOtherTeam(ArenaTeam team1) {
@@ -174,16 +203,19 @@ public class HostageArena extends Arena implements HostageRoom {
     @Override
     public void onStart() {
         super.onStart();
-        int matchID = getMatch().getID();
         plugin.debug().msgArenaPlayers(getMatch().getPlayers(), "onStart() has been called.");
-        hostages.put(matchID, new ArrayList<Hostage>());
-        trackers.put(matchID, new HostageTracker(getMatch()));
-        int taskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, trackers.get(matchID), 0L, 20L);
-        ids.put(matchID, taskID);
-        kills.put(matchID, new ConcurrentHashMap<Integer, Integer>());
+        
+        if (this.epoints != null && !epoints.isEmpty()) {
+            this.tracker = new HostageTracker(getMatch(), getExtractionPoints());
+            this.taskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, tracker, 0L, 20L);
+        } else {
+            String WARNING = "There are no extraction points configured for this arena.";
+            plugin.debug().msgArenaPlayers(getMatch().getPlayers(), WARNING);
+        }
+        
         for (ArenaTeam t : getMatch().getTeams()) {
             int teamID = t.getId();
-            kills.get(matchID).put(teamID, 0);
+            kills.put(teamID, 0);
         }
     }
     
@@ -193,13 +225,11 @@ public class HostageArena extends Arena implements HostageRoom {
     @Override
     public void onComplete() {
         plugin.debug().log("onComplete() has been called");
-        int matchID = getMatch().getID();
     }
     
     @ArenaEventHandler
     public void onMatchResult(MatchResultEvent e) {
-        int matchID = getMatch().getID();
-        for (Hostage h : hostages.get(matchID)) {
+        for (Hostage h : vips) {
             h.removeEntity();
         }
     }
@@ -210,11 +240,8 @@ public class HostageArena extends Arena implements HostageRoom {
     @Override
     public void onFinish() {
         plugin.debug().log("onFinish() has been called");
-        int matchID = getMatch().getID();
-        int taskID = ids.get(matchID);
         plugin.getServer().getScheduler().cancelTask(taskID);
-        kills.remove(matchID);
-        
+        kills.clear();
     }
     
     public List getHostages() {
@@ -228,8 +255,11 @@ public class HostageArena extends Arena implements HostageRoom {
         return tlist;
     }
     
-    @Override
-    public List getHostages(int matchID) {
-        return hostages.get(matchID);
+    public List getHostageList() {
+        return new ArrayList(vips);
+    }
+    
+    public Set getHostageSet() {
+        return vips;
     }
 }

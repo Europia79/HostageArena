@@ -45,8 +45,14 @@
     </repositories>
     <dependencies>
         <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.7.2-R0.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>mc.euro</groupId>
-            <artifactId>extraction-debug</artifactId>
+            <artifactId>extraction-api</artifactId>
             <version>parent</version>
             <type>jar</type>
             <optional>true</optional>
@@ -111,12 +117,6 @@
             <version>parent</version>
             <type>jar</type>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.7.2-R0.3</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>mc.alk</groupId>

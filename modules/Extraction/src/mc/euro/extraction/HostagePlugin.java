@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import mc.alk.arena.BattleArena;
 import mc.alk.arena.executors.CustomCommandExecutor;
-import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.api.IHostagePlugin;
 import mc.euro.extraction.appljuze.ConfigManager;
 import mc.euro.extraction.appljuze.CustomConfig;
 import mc.euro.extraction.commands.HostageExecutor;
@@ -20,7 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author Nikolai
  */
-public class HostagePlugin extends JavaPlugin implements SuperPlugin {
+public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
     
     DebugInterface debug;
     Version server;
@@ -94,7 +94,7 @@ public class HostagePlugin extends JavaPlugin implements SuperPlugin {
         try {
             Class cmdClass = getNmsClass("HostageExecutor");
             return ((CustomCommandExecutor) cmdClass
-                    .getConstructor(new Class[]{SuperPlugin.class}).newInstance(this));
+                    .getConstructor(new Class[]{IHostagePlugin.class}).newInstance(this));
         } catch (ClassNotFoundException ex) {
             getLogger().log(Level.SEVERE, null, ex);
         } catch (NoSuchMethodException ex) {

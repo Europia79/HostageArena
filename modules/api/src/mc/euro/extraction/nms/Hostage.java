@@ -23,8 +23,8 @@ public interface Hostage {
     public void setLocation(Location loc);
     public void removeEntity();
     
-    public Profession getType();
-    public void setType(Profession x);
+    public Profession getProfessionType();
+    public void setProfessionType(Profession x);
     public String getCustomName();
     public void setCustomName(String name);
     

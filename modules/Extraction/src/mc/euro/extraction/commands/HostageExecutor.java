@@ -8,13 +8,19 @@ import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.alk.arena.executors.MCCommand;
 import mc.alk.arena.objects.arenas.Arena;
 import mc.alk.arena.util.SerializerUtil;
-import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.HostageArena;
+import mc.euro.extraction.api.IHostagePlugin;
 import mc.euro.extraction.appljuze.CustomConfig;
 import mc.euro.extraction.debug.*;
+import mc.euro.extraction.nms.Hostage;
+import mc.euro.extraction.nms.NPCFactory;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 
 /**
  *
@@ -22,52 +28,97 @@ import org.bukkit.entity.Player;
  */
 public class HostageExecutor extends CustomCommandExecutor {
     
-    SuperPlugin plugin;
+    IHostagePlugin plugin;
     
-    public HostageExecutor(SuperPlugin p) {
+    public HostageExecutor(IHostagePlugin p) {
         this.plugin = p;
     }
     
     @MCCommand(cmds={"list"},subCmds={"extractionpoint","extractionpoints"}, op=true)
-    public boolean listExtractionPoints(CommandSender sender, Arena arena) {
+    public boolean listExtractionPoints(CommandSender sender, Arena a) {
+        if (!(a instanceof HostageArena)) {
+            sender.sendMessage("" + a.getName() + " is not a HostageArena");
+            return false;
+        }
+        HostageArena arena = (HostageArena) a;
+        List<Location> locs = arena.getExtractionPoints();
+        if (locs.size() == 0) {
+            sender.sendMessage("This arena (" + a.getName() + ") does not have any extraction points");
+            return true;
+        }
+        sender.sendMessage("Extraction points for arena " + a.getName());
+        for (int i = 0; i < locs.size(); i++) {
+            String msg = i + ". " + locs.get(i).toString();
+            sender.sendMessage(msg);
+        }
         return true;
     }
-    
-    @MCCommand(cmds={"set"},subCmds={"extractionpoint"}, op=true)
+
+    @MCCommand(cmds={"set"}, subCmds={"extractionpoint"}, op = true)
     public boolean setExtractionPoint(Player sender, Arena arena) {
         clearExtractionPoints(sender, arena);
         addExtractionPoint(sender, arena);
         return true;
     }
-    @MCCommand(cmds={"add"},subCmds={"extractionpoint"}, op=true)
-    public boolean addExtractionPoint(Player sender, Arena arena) {
-        // path = arenas.{arena}.extractionpoints
-        BattleArenaController bac = BattleArena.getBAController();
-        String path = "arenas." + arena.getName() + ".extractionpoints";
-        List<String> locations = new ArrayList<String>();
-        CustomConfig config = plugin.getConfig("arenas.yml");
-        if (config.getStringList(path) != null) {
-            locations = plugin.getConfig("arenas.yml").getStringList(path);
+    
+    @MCCommand(cmds={"clear"}, subCmds={"extractionpoints"},op=true)
+    public boolean clearExtractionPoints(CommandSender sender, Arena a) {
+        // path = arenas.{arenaName}.persistables.epoints
+        if (!(a instanceof HostageArena)) {
+            sender.sendMessage("" + a.getName() + " is not a valid HostageArena.");
+            return false;
         }
+        HostageArena arena = (HostageArena) a;
+        arena.clearExtractionPoints();
+        BattleArena.saveArenas(plugin);
+        String msg = "All extraction points for arena " + a.getName() + " have been deleted.";
+        return true;
+    }
+
+    @MCCommand(cmds = {"add"}, subCmds = {"extractionpoint"}, op = true)
+    public boolean addExtractionPoint(Player sender, Arena a) {
+        
+        if (!(a instanceof HostageArena)) {
+            sender.sendMessage("Arena must be a valid HostageArena.");
+            return false;
+        }
+        HostageArena arena = (HostageArena) a;
         Location loc = sender.getLocation();
-        String stringLocation = SerializerUtil.getLocString(loc);
-        locations.add(stringLocation);
-        config.set(path, locations);
-        config.saveConfig();
-        bac.updateArena(arena);
-        sender.sendMessage("Extraction point set!");
+        arena.addExtractionPoint(loc);
+        BattleArena.saveArenas(plugin);
+        sender.sendMessage("Extraction Point added to arena: " + a.getName());
         return true;
     }
     
-    @MCCommand(cmds={"clear"}, subCmds={"extractionpoints"},op=true)
-    public boolean clearExtractionPoints(CommandSender sender, Arena arena) {
-        // path = arenas.{arena}.extractionpoints
-        CustomConfig config = plugin.getConfig("arenas.yml");
-        String path = "arenas." + arena.getName() + ".extractionpoints";
-        config.set(path, null);
-        config.saveConfig();
-        sender.sendMessage("All extraction points for this arena have been deleted.");
-        return true;
+    public boolean addExtractionZone(Player sender, Arena a) {
+        /*
+        HostageArena arena = (HostageArena) arena;
+        if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
+            WorldEditPlugin wePlugin = (WorldEditPlugin) Bukkit
+                    .getPluginManager().getPlugin("WorldEdit");
+            Selection selection = wePlugin.getSelection(player);
+            if (selection != null) {
+                ExtractionZone zone = new ExtractionZone(
+                        selection.getMinimumPoint(),
+                        selection.getMaximumPoint(), sender.getLocation());
+                arena.addExtractionZone(zone);
+                BattleArena.saveArenas(plugin);
+                String message = ChatColor.GREEN
+                        + "Extraction zone has been added for arena "
+                        + arena.getDisplayName() + "!";
+                sender.sendMessage(message);
+                return true;
+            } else {
+                sender.sendMessage(ChatColor.RED
+                        + "You must have a WorldEdit selection with the two corners selected!");
+            }
+        } else {
+            sender.sendMessage(ChatColor.RED
+                    + "You must have WorldEdit enabled to use this feature!");
+        }
+        */
+        sender.sendMessage("Command not implemented");
+        return false;
     }
     
     @MCCommand(cmds={"setspawn"}, perm="hostagearena.vips.spawn")
@@ -108,9 +159,20 @@ public class HostageExecutor extends CustomCommandExecutor {
         return true;
     }
     
-    @MCCommand(cmds={"spawn"})
+    @MCCommand(cmds={"spawn"}, op=true)
     public boolean spawnHostage(Player sender) {
-        sender.sendMessage("Command not yet implemented.");
+        int hp = plugin.getConfig().getInt("HostageHP", 3);
+        return spawnHostage(sender, hp);
+    }
+    
+    @MCCommand(cmds={"spawn"}, op=true)
+    public boolean spawnHostage(Player sender, int hp) {
+        Location loc = sender.getLocation();
+        NPCFactory factory = NPCFactory.newInstance(plugin);
+        Hostage hostage = factory.spawnHostage(loc);
+        PluginManager pm = plugin.getServer().getPluginManager();
+        pm.registerEvents(new HostageListener(hostage, hp), plugin);
+        sender.sendMessage("Hostage spawned with " + hp + " hit points.");
         return true;
     }
     

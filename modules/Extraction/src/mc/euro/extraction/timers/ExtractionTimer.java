@@ -1,9 +1,10 @@
-package mc.euro.extraction.nms.v1_7_R1;
+package mc.euro.extraction.timers;
 
 import java.util.ArrayList;
 import java.util.List;
 import mc.alk.arena.competition.match.Match;
-import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.api.IHostagePlugin;
+import mc.euro.extraction.nms.Hostage;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -13,13 +14,13 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public class ExtractionTimer extends BukkitRunnable {
     
-    SuperPlugin plugin;
+    IHostagePlugin plugin;
     int duration;
     Match match;
-    List<CraftHostage> hostages = new ArrayList<CraftHostage>();
+    List<Hostage> hostages = new ArrayList<Hostage>();
     
     public ExtractionTimer(Match m) {
-        this.plugin = (SuperPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
+        this.plugin = (IHostagePlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
         this.duration = plugin.getConfig().getInt("ExtractionTimer", 15) + 1;
         this.match = m;
     }

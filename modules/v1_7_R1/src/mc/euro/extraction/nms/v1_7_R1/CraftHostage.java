@@ -113,18 +113,18 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     
     @Override
     public Location getLocation() {
-        Villager v = (Villager) this;
-        return v.getLocation();
+        Location loc = new Location(world.getWorld(), locX, locY, locZ, yaw, pitch);
+        return loc;
     }
     
     @Override
     public void setLocation(Location loc) {
-        double X = loc.getX();
-        double Y = loc.getY();
-        double Z = loc.getZ();
-        float YAW = loc.getYaw();
-        float PITCH = loc.getPitch();
-        setLocation(X, Y, Z, YAW, PITCH);
+        double x = loc.getX();
+        double y = loc.getY();
+        double z = loc.getZ();
+        float newYaw = loc.getYaw();
+        float newPitch = loc.getPitch();
+        setLocation(x, y, z, newYaw, newPitch);
     }
 
     @Override
@@ -138,13 +138,13 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     }
 
     @Override
-    public Profession getType() {
+    public Profession getProfessionType() {
         int id = getProfession();
         return Profession.getProfession(id);
     }
 
     @Override
-    public void setType(Profession x) {
+    public void setProfessionType(Profession x) {
         setProfession(x.getId());
     }
 
@@ -152,6 +152,6 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     public void setHealth(double health) {
         setHealth((float) health);
     }
-
+    
 
 }

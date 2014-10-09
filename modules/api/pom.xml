@@ -9,10 +9,10 @@
         <relativePath>../../</relativePath>
     </parent>
     <groupId>mc.euro</groupId>
-    <artifactId>extraction-debug</artifactId>
+    <artifactId>extraction-api</artifactId>
     <version>parent</version>
     <packaging>jar</packaging>
-    <name>extraction-debug</name>
+    <name>extraction-api</name>
     <url>https://github.com/Europia79/Extraction</url>
     <properties>
         <maven.build.timestamp.format>MMdd</maven.build.timestamp.format>
@@ -32,6 +32,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>Version</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
@@ -39,7 +45,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>Extraction-debug</finalName>
+        <finalName>Extraction-api</finalName>
         <directory>./target</directory>
         <sourceDirectory>./src</sourceDirectory>
         <plugins>
@@ -51,6 +57,33 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>mc.euro.version</pattern>
+                                    <shadedPattern>mc.euro.extraction.util</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <artifactSet>
+                                <includes>
+                                    <include>mc.euro:Version</include>
+                                </includes>
+                            </artifactSet>
+                            <minimizeJar>true</minimizeJar>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -5,11 +5,12 @@ import java.util.Collection;
 import java.util.List;
 import mc.alk.arena.competition.match.Match;
 import mc.alk.arena.util.SerializerUtil;
-import mc.euro.extraction.api.SuperPlugin;
+import mc.euro.extraction.api.IHostagePlugin;
 import mc.euro.extraction.appljuze.CustomConfig;
 import mc.euro.extraction.nms.Hostage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Villager;
 
 /**
@@ -21,41 +22,24 @@ public class HostageTracker implements Runnable {
     public static List<Hostage> allhostages;
     public List<Hostage> hostages;
     
-    SuperPlugin plugin;
+    IHostagePlugin plugin;
     Match match;
     HostageArena arena;
-    Location extraction;
     List<Location> extractions;
+    World world;
     int taskID;
     
     public HostageTracker(HostageArena a) {
-        this.plugin = (SuperPlugin) Bukkit.getPluginManager().getPlugin("HostageArena");
+        this.plugin = (IHostagePlugin) Bukkit.getPluginManager().getPlugin("HostageArena");
         this.arena = a;
+        this.extractions = arena.getExtractionPoints();
+        this.world = extractions.get(0).getWorld();
     }
-    public HostageTracker(Match m) {
-        this.plugin = (SuperPlugin) Bukkit.getPluginManager().getPlugin("HostageArena");
+    public HostageTracker(Match m, List<Location> epoints) {
+        this.plugin = (IHostagePlugin) Bukkit.getPluginManager().getPlugin("HostageArena");
         this.match = m;
-        loadExtractionPoints();
-        
-    }
-
-    private void loadExtractionPoints() {
-        // path = arenas.{arena}.extractionpoints
-        CustomConfig config = plugin.getConfig("arenas.yml");
-        String path = "arenas." + match.getArena().getName() + ".extractionpoints";
-        if (config.getStringList(path) == null) {
-            plugin.getLogger().severe("No Extraction points found for arena: " + match.getArena().getName());
-            plugin.getLogger().severe("Match is being canceled because the arena is mis-configured.");
-            match.cancelMatch();
-            return;
-        }
-        List<String> listLocations = config.getStringList(path);
-        this.extractions = new ArrayList<Location>();
-        for (String s : listLocations) {
-            Location t = SerializerUtil.getLocation(s);
-            this.extraction = t;
-            this.extractions.add(extraction);
-        }
+        this.extractions = epoints;
+        this.world = extractions.get(0).getWorld();
     }
 
     @Override
@@ -63,15 +47,16 @@ public class HostageTracker implements Runnable {
         if (match.isFinished()) {
             plugin.getServer().getScheduler().cancelTask(taskID);
         }
-        if (this.extraction.getWorld().getEntitiesByClass(Villager.class) == null) {
+        if (world != null && world.getEntitiesByClass(Villager.class) == null) {
             plugin.debug().log("No hostages have been found.");
             return;
         }
         
-        Collection collection = extraction.getWorld().getEntitiesByClass(Villager.class);
+        Collection collection = world.getEntitiesByClass(Villager.class);
         plugin.debug().log("" + collection.size() + " hostages have been found.");
         plugin.debug().msgArenaPlayers(match.getPlayers(),"" + collection.size()
                 + " hostages have been found.");
+        
         
     }
     
