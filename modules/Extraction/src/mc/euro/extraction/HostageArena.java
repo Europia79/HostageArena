@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import mc.alk.arena.competition.match.Match;
+import mc.alk.arena.events.matches.MatchBeginEvent;
 import mc.alk.arena.events.matches.MatchResultEvent;
+import mc.alk.arena.events.matches.MatchStartEvent;
 import mc.alk.arena.objects.MatchResult;
 import mc.alk.arena.objects.arenas.Arena;
 import mc.alk.arena.objects.events.ArenaEventHandler;
@@ -34,6 +36,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 /**
  *
@@ -74,27 +78,35 @@ public class HostageArena extends Arena {
         return new ArrayList<Location>(epoints);
     }
     
+    @ArenaEventHandler
+    public void matchStartEvent(MatchStartEvent e) {
+        plugin.debug().log("MatchStartEvent called");
+    }
+    
     // @ArenaEventHandler (priority=EventPriority.HIGHEST,entityMethod="getEntity")
     @ArenaEventHandler(priority = EventPriority.HIGHEST, needsPlayer = false)
     public void onSpawn(CreatureSpawnEvent e) {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
-        if (e.getEntity() instanceof Hostage) return;
+        // if (e.getEntity() instanceof Hostage) return;
         plugin.debug().log("CreatureSpawnEvent has detected a Villager spawn.");
-
-        Villager v = (Villager) e.getEntity();
-        v.setCustomName(Attributes.getName(plugin));
-        v.setProfession(Attributes.getType(plugin));
         
-        // getHostage() is glitchy when located inside CreatureSpawnEvent
-        /*
-        Hostage hostage = factory.getHostage(v);
-        
-        if (!vips.contains(hostage)) {
+        /**
+         * Expected 3 hostages to spawn, Result = 6.
+         */
+        if (!factory.isHostage(e.getEntity())) {
+            plugin.debug().log("Villager is NOT of type Hostage.");
+            e.setCancelled(true);
+            plugin.debug().log("CreatureSpawnEvent CANCELLED");
+            
+            Hostage hostage = factory.spawnHostage(e.getEntity().getLocation());
+            hostage.setCustomName(Attributes.getName(plugin));
+            hostage.setProfessionType(Attributes.getType(plugin));
             vips.add(hostage);
+        } else {
+            plugin.debug().log("CSE detected a Hostage spawn");
         }
-        */
     }
-    
+
     @ArenaEventHandler (priority=EventPriority.HIGHEST)
     public void onInvOpen(InventoryOpenEvent e) {
         if (e.getInventory().getType() != InventoryType.MERCHANT) return;
@@ -108,7 +120,6 @@ public class HostageArena extends Arena {
         
         Entity E = e.getRightClicked();
         
-        NPCFactory factory = NPCFactory.newInstance(plugin);
         Hostage h = factory.getHostage(E);
         
         Player p = (Player) e.getPlayer();
@@ -260,6 +271,6 @@ public class HostageArena extends Arena {
     }
     
     public Set getHostageSet() {
-        return vips;
+        return new LinkedHashSet(vips);
     }
 }
