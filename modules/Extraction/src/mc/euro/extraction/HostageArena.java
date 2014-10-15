@@ -46,6 +46,7 @@ import org.bukkit.scheduler.BukkitTask;
 public class HostageArena extends Arena {
     IHostagePlugin plugin;
     NPCFactory factory;
+    Set<Villager> villagers = new LinkedHashSet<Villager>(6);
     Set<Hostage> vips = new LinkedHashSet<Hostage>(6);
     List<Hostage> hostages = new ArrayList<Hostage>(6);
     int desiredHP;
@@ -89,9 +90,11 @@ public class HostageArena extends Arena {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
         // if (e.getEntity() instanceof Hostage) return;
         plugin.debug().log("CreatureSpawnEvent has detected a Villager spawn.");
-        
         /**
-         * Expected 3 hostages to spawn, Result = 6.
+         * BattleArena will spawn the Villagers BEFORE onStart().
+         * If the respawn time is greater than zero, then 
+         * BattleArena will immediately respawn the villagers again 
+         * AFTER onStart(). Creating a duplication glitch.
          */
         if (!factory.isHostage(e.getEntity())) {
             plugin.debug().log("Villager is NOT of type Hostage.");
@@ -209,7 +212,7 @@ public class HostageArena extends Arena {
     }
     
     /**
-     * Order: onStart(), onComplete(), onFinish() 
+     * Order: onStart(), onComplete(), onFinish(). 
      */
     @Override
     public void onStart() {
@@ -231,7 +234,7 @@ public class HostageArena extends Arena {
     }
     
     /**
-     * Order: onStart(), onComplete(), onFinish() 
+     * Order: onStart(), onComplete(), onFinish(). 
      */
     @Override
     public void onComplete() {
@@ -246,7 +249,7 @@ public class HostageArena extends Arena {
     }
     
     /**
-     * Order: onStart(), onComplete(), onFinish() 
+     * Order: onStart(), onComplete(), onFinish(). 
      */
     @Override
     public void onFinish() {
