@@ -257,7 +257,7 @@ Bugs to fix:
 Known Issues:
 ---
 - Compatible with any version of BattleArena.
-- Backwards compatible with older versions of Minecraft (1.6.1 to 1.7.9).
+- Backwards compatible with older versions of Minecraft (1.6.1 to 1.7.10).
 - Minecraft versions 1.5 and older contain an NPC bug where Hostages immediately disappear.
 - HostageArena contains version dependent code, therefore it will break and automatically disable itself for new versions of Minecraft.
   
