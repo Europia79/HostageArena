@@ -4,8 +4,9 @@ Bukkit plugin that adds the Extraction game type to
 Minecraft servers running BattleArena (dependency).
 
 
-One team guards the hostages while the other team attempts 
-to extract (rescue) the hostages.
+- **Extraction**
+  * this word describes a Special Operations missions where hostages or injured soldiers are rescued.
+  * One team guards the hostages while the other team tries to extract (rescue) the hostages.
 
 
 There are four ways to win:  
@@ -57,6 +58,57 @@ Obviously, because the Terrorist (guards) can win by simply letting
 time expire, this gamemode should NOT have infinite respawn.
 
 
+Downloads:
+---
+
+**Official builds**
+
+You can find the official builds at dev.bukkit.org .The source code for these builds 
+have been checked to make sure that they do NOT contain any malicious code. 
+
+[http://dev.bukkit.org/bukkit-plugins/hostagearena/] (http://dev.bukkit.org/bukkit-plugins/hostagearena/ "Official builds")
+
+
+**Development builds**
+
+```python
+"Development builds of this project can be acquired at the provided continuous integration server."
+"These builds have not been approved by the BukkitDev staff. Use them at your own risk."
+```
+
+[http://rainbowcraft.sytes.net:8080/job/HostageArena/](http://rainbowcraft.sytes.net:8080/job/HostageArena/ "dev builds")
+
+The dev builds are primarily for testing purposes.
+
+
+Dependencies:
+---
+
+- **Bukkit API**
+  * https://github.com/Bukkit/Bukkit
+  * Requires Spigot, Craftbukkit, or any other server software that implements the Bukkit API.
+- **BattleArena**
+  * http://dev.bukkit.org/bukkit-plugins/battlearena/
+  * Extraction plugin is just a game-type addition to BattleArena.
+  * Required dependency
+- **BattleTracker**
+  * http://dev.bukkit.org/bukkit-plugins/battletracker/
+  * Used to track player stats like `Hostages Rescued` and `Hostages Killed`
+  * Optional dependency
+- **Holographic Displays**
+  * http://dev.bukkit.org/bukkit-plugins/holographic-displays/
+  * Adds icons at extraction points
+  * Optional dependency
+- **HoloAPI**
+  * http://dev.bukkit.org/bukkit-plugins/holoapi/
+  * Adds icons at extractions points
+  * Optional dependency
+- **EnjinMinecraftPlugin**
+  * http://dev.bukkit.org/bukkit-plugins/emp/
+  * Used to track player stats like `Hostages Rescued` and `Hostages Killed`
+  * Future optional dependency
+
+
 Arena Setup:
 ---
 
@@ -70,19 +122,20 @@ Arena Setup:
 
 `/vips setspawn <arena>` (sets the spawn location for hostages)  
 
-If the `/vips setspawn <arena>` command ever breaks, then you can 
-use these two commands instead:  
+If the `/vips setspawn <arena>` command ever breaks, 
+(or if you want more fine-grained control over where each hostage spawns), 
+then you can use these two commands instead:  
 
 `/aa select <arena>`  
 
-`/aa addspawn VILLAGER 3 fs=0 rs=2500 ds=2500 index=1`  
+`/aa addspawn VILLAGER 1 fs=0 rs=0 ds=2500 index=1`  
 
 "aa stands for `/arenaAlter`. `fs` stands for First Spawn (normally 0 or 1 seconds after the match beings). 
-`rs=2500` stands for ReSpawn after 2500 seconds (hopefully never). 
-`ds=2500` stands for DeSpawn after 2500 seconds (hopefully never).
-The cmd `/vips setspawn` automatically sets the respawn & despawn time to the duration of the match.
-So if you use `/aa addspawn` then try to set the respawn & despawn time greater than 
-or equal to the match duration. Also, if you use `addspawn` then you can choose 
+`rs=0` stands for ReSpawn. NOTE: `rs` MUST BE LESS THAN OR EQUAL TO ZERO. 
+`ds=2500` stands for DeSpawn after 2500 seconds (hopefully never). 
+The cmd `/vips setspawn` automatically sets the despawn time to the duration of the match.
+So if you use `/aa addspawn` then try to set the despawn time greater than or equal to the match duration,  
+and set the respawn time to zero. Also, if you use `addspawn` then you can choose 
 3 different spawn locations for each VIP.
 `setspawn` will spawn all 3 hostages in the same room.
 
@@ -187,41 +240,7 @@ Also, there's a fake player in the SQL table called
 `Hostages Extracted Killed` that is there by virtue of tracking 
 stats that were never meant to be tracked.
 
-
-Dependencies:
----
-
-- **BattleArena**
-  * http://dev.bukkit.org/bukkit-plugins/battlearena/
-  * Extraction plugin is just a game-type addition to BattleArena.
-  * Mandatory dependency
-- **BattleTracker**
-  * http://dev.bukkit.org/bukkit-plugins/battletracker/
-  * Used to track player stats like `Hostages Rescued` and `Hostages Killed`
-  * Optional dependency
-
   
-Downloads:
----
-
-**Official builds**
-
-You can find the official builds at dev.bukkit.org .The source code for these builds 
-have been checked to make sure that they do NOT contain any malicious code. 
-
-[http://dev.bukkit.org/bukkit-plugins/hostagearena/] (http://dev.bukkit.org/bukkit-plugins/hostagearena/ "Official builds")
-
-
-**Development builds**
-
-```python
-"Development builds of this project can be acquired at the provided continuous integration server."
-"These builds have not been approved by the BukkitDev staff. Use them at your own risk."
-```
-
-[http://ci.battleplugins.com/](http://ci.battleplugins.com/ "dev builds")
-
-The dev builds are primarily for testing purposes.
 
 
 To-Do List
@@ -238,14 +257,15 @@ Bugs to fix:
 Known Issues:
 ---
 - Compatible with any version of BattleArena.
-- Backwards compatible with older versions of Minecraft (1.2.5 to 1.7.9).
+- Backwards compatible with older versions of Minecraft (1.6.1 to 1.7.9).
+- Minecraft versions 1.5 and older contain an NPC bug where Hostages immediately disappear.
 - HostageArena contains version dependent code, therefore it will break and automatically disable itself for new versions of Minecraft.
   
 
 Contact:
 ======
 
-Nick at Nikolai.Kalashnikov@hotmail.com
+Nick at Europia79@hotmail.com
 
 Nicodemis79 on Skype
 
@@ -256,6 +276,6 @@ Nicodemis79 on Skype
 Javadocs & Wiki
 ---
 
-[http://ci.battleplugins.com/job/HostageArena/javadoc/](http://ci.battleplugins.com/job/HostageArena/javadoc/ "javadocs")
+[http://rainbowcraft.sytes.net:8080/job/HostageArena/](http://rainbowcraft.sytes.net:8080/job/HostageArena/ "javadocs")
 
-[http://wiki.battleplugins.com/w/index.php/HostageArena](http://wiki.battleplugins.com/w/index.php/HostageArena "wiki")
+[http://wiki.battleplugins.org/Main_Page](http://wiki.battleplugins.org/Main_Page "wiki")
