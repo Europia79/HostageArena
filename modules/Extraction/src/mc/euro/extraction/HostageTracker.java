@@ -1,63 +1,76 @@
 package mc.euro.extraction;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import mc.alk.arena.competition.match.Match;
-import mc.alk.arena.util.SerializerUtil;
 import mc.euro.extraction.api.IHostagePlugin;
-import mc.euro.extraction.appljuze.CustomConfig;
 import mc.euro.extraction.nms.Hostage;
+import mc.euro.extraction.timers.ExtractionTimer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.Villager;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  *
  * @author Nikolai
  */
-public class HostageTracker implements Runnable {
-    
-    public static List<Hostage> allhostages;
-    public List<Hostage> hostages;
+public class HostageTracker extends BukkitRunnable {
     
     IHostagePlugin plugin;
     Match match;
-    HostageArena arena;
+    Set<Hostage> hostages;
     List<Location> extractions;
-    World world;
-    int taskID;
+    ExtractionTimer timer;
+    Set<Hostage> extractionZone;
     
-    public HostageTracker(HostageArena a) {
-        this.plugin = (IHostagePlugin) Bukkit.getPluginManager().getPlugin("HostageArena");
-        this.arena = a;
-        this.extractions = arena.getExtractionPoints();
-        this.world = extractions.get(0).getWorld();
-    }
-    public HostageTracker(Match m, List<Location> epoints) {
+    public HostageTracker(Match m, Set<Hostage> hSet, List<Location> epoints) {
         this.plugin = (IHostagePlugin) Bukkit.getPluginManager().getPlugin("HostageArena");
         this.match = m;
-        this.extractions = epoints;
-        this.world = extractions.get(0).getWorld();
+        this.hostages = hSet;
+        this.extractions = epoints; // extraction points
+        this.extractionZone = new LinkedHashSet<Hostage>();
+        this.timer = new ExtractionTimer();
     }
 
     @Override
     public void run() {
         if (match.isFinished()) {
-            plugin.getServer().getScheduler().cancelTask(taskID);
+            stop();
         }
-        if (world != null && world.getEntitiesByClass(Villager.class) == null) {
-            plugin.debug().log("No hostages have been found.");
-            return;
+        if (zoneContainsHostage()) {
+            if (!timer.hasStarted()) {
+                timer.start();
+            } else {
+                timer.setExtractionZone(extractionZone);
+            }
         }
         
-        Collection collection = world.getEntitiesByClass(Villager.class);
-        plugin.debug().log("" + collection.size() + " hostages have been found.");
-        plugin.debug().msgArenaPlayers(match.getPlayers(),"" + collection.size()
-                + " hostages have been found.");
-        
-        
+    }
+
+    /**
+     * If the extractionZone is NOT empty, then it contains hostages. <br/>
+     */
+    private boolean zoneContainsHostage() {
+        extractionZone.clear();
+        Set<Hostage> vips = new LinkedHashSet<Hostage>(hostages);
+        for (Hostage h : vips) {
+            for (Location loc : extractions) {
+                double distance = loc.distance(h.getLocation());
+                plugin.debug().log("distance = " + distance);
+                if (distance <= 12) {
+                    plugin.debug().log("Hostaged added");
+                    extractionZone.add(h);
+                }
+            }
+        }
+        plugin.debug().log("extractionZone.isEmpty() = " + extractionZone.isEmpty());
+        return (!extractionZone.isEmpty());
+    }
+    
+    public void stop() {
+        timer.cancel();
+        this.cancel();
     }
     
 }
