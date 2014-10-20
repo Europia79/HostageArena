@@ -1,16 +1,17 @@
-package mc.euro.extraction.nms.v1_7_R1;
+package mc.euro.extraction.nms.v1_7_R4;
 
 import java.lang.reflect.Field;
+import java.util.UUID;
 import mc.euro.extraction.nms.Hostage;
-import net.minecraft.server.v1_7_R1.Entity;
-import net.minecraft.server.v1_7_R1.EntityAgeable;
-import net.minecraft.server.v1_7_R1.EntityOwnable;
-import net.minecraft.server.v1_7_R1.EntityVillager;
-import net.minecraft.server.v1_7_R1.PathfinderGoalSelector;
-import net.minecraft.server.v1_7_R1.World;
+import net.minecraft.server.v1_7_R4.Entity;
+import net.minecraft.server.v1_7_R4.EntityAgeable;
+import net.minecraft.server.v1_7_R4.EntityOwnable;
+import net.minecraft.server.v1_7_R4.EntityVillager;
+import net.minecraft.server.v1_7_R4.PathfinderGoalSelector;
+import net.minecraft.server.v1_7_R4.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_7_R1.util.UnsafeList;
+import org.bukkit.craftbukkit.v1_7_R4.util.UnsafeList;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager.Profession;
 
@@ -35,25 +36,18 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
         this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0D, 2.0F, 2.0F));
     }
     
-    public CraftHostage(World w, int profession, String p) {
-        super(w, profession);
-        this.owner = p;
-        clearPathfinders();
-        this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0D, 2.0F, 2.0F));
-    }
-    
     private void clearPathfinders() {
         try {
-            Field bField = PathfinderGoalSelector.class.getDeclaredField("b"); // List.add() List.iterator()
+            Field bField = PathfinderGoalSelector.class.getDeclaredField("b");
             bField.setAccessible(true);
-            Field cField = PathfinderGoalSelector.class.getDeclaredField("c"); // List.contains() List.remove()
+            Field cField = PathfinderGoalSelector.class.getDeclaredField("c");
             cField.setAccessible(true);
             bField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
             bField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
             cField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
             cField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception exc) {
+            exc.printStackTrace();
         }
     }
     
@@ -79,13 +73,13 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     }
     
     @Override
-    public void follow(String name) {
-        this.owner = name;
+    public void follow(String p) {
+        this.owner = p;
     }
     
     @Override
     public void setOwner(Player p) {
-        this.owner = p.getName();
+        setOwner(p.getName());
     }
     
     @Override
@@ -135,8 +129,8 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
 
     @Override
     public Profession getProfessionType() {
-        int typeID = getProfession();
-        return Profession.getProfession(typeID);
+        int id = getProfession();
+        return Profession.getProfession(id);
     }
 
     @Override
@@ -148,12 +142,22 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     public void setHealth(double health) {
         setHealth((float) health);
     }
-    
+
+    @Override
+    public String getOwnerUUID() {
+        if (this.owner == null) {
+            return null;
+        }
+        Player player = Bukkit.getPlayer(owner);
+        UUID uuid = player.getUniqueId();
+        return uuid.toString();
+    }
+
     @Override
     public Player getRescuer() {
         String name = (owner == null) ? lastOwner : owner;
         Player rescuer = Bukkit.getPlayer(name);
         return rescuer;
     }
-
+    
 }

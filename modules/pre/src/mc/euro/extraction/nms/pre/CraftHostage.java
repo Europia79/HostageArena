@@ -1,16 +1,16 @@
-package mc.euro.extraction.nms.v1_7_R1;
+package mc.euro.extraction.nms.pre;
 
 import java.lang.reflect.Field;
 import mc.euro.extraction.nms.Hostage;
-import net.minecraft.server.v1_7_R1.Entity;
-import net.minecraft.server.v1_7_R1.EntityAgeable;
-import net.minecraft.server.v1_7_R1.EntityOwnable;
-import net.minecraft.server.v1_7_R1.EntityVillager;
-import net.minecraft.server.v1_7_R1.PathfinderGoalSelector;
-import net.minecraft.server.v1_7_R1.World;
+import net.minecraft.server.Entity;
+import net.minecraft.server.EntityAgeable;
+import net.minecraft.server.EntityVillager;
+import net.minecraft.server.PathfinderGoalSelector;
+import net.minecraft.server.World;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_7_R1.util.UnsafeList;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.craftbukkit.util.UnsafeList;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager.Profession;
 
@@ -18,7 +18,7 @@ import org.bukkit.entity.Villager.Profession;
  *
  * @author Nikolai
  */
-public class CraftHostage extends EntityVillager implements EntityOwnable, Hostage {
+public class CraftHostage extends EntityVillager implements Hostage {
     
     private String owner;
     private String lastOwner;
@@ -26,27 +26,24 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     public CraftHostage(World w) {
         super(w);
         clearPathfinders();
-        this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0D, 2.0F, 2.0F));
+        this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0F, 2.0F, 2.0F));
+        // ((CraftVillager) super.getBukkitEntity()).setMaxHealth(20);
+        this.setHealth(20);
     }
     
     public CraftHostage(World w, int profession) {
         super(w, profession);
         clearPathfinders();
-        this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0D, 2.0F, 2.0F));
-    }
-    
-    public CraftHostage(World w, int profession, String p) {
-        super(w, profession);
-        this.owner = p;
-        clearPathfinders();
-        this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0D, 2.0F, 2.0F));
+        this.goalSelector.a(10, new PathfinderGoalFollowPlayer(this, 1.0F, 2.0F, 2.0F));
+        // ((CraftVillager) super.getBukkitEntity()).setMaxHealth(20);
+        this.setHealth(20);
     }
     
     private void clearPathfinders() {
         try {
-            Field bField = PathfinderGoalSelector.class.getDeclaredField("b"); // List.add() List.iterator()
+            Field bField = PathfinderGoalSelector.class.getDeclaredField("a");
             bField.setAccessible(true);
-            Field cField = PathfinderGoalSelector.class.getDeclaredField("c"); // List.contains() List.remove()
+            Field cField = PathfinderGoalSelector.class.getDeclaredField("b");
             cField.setAccessible(true);
             bField.set(goalSelector, new UnsafeList<PathfinderGoalSelector>());
             bField.set(targetSelector, new UnsafeList<PathfinderGoalSelector>());
@@ -75,7 +72,7 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     
     @Override
     public void follow(Player p) {
-        follow(p.getName());
+        this.owner = p.getName();
     }
     
     @Override
@@ -97,13 +94,11 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     public String getOwnerName() {
         return this.owner;
     }
-
-    @Override
+    
     public Entity getOwner() {
         if (this.owner == null) return null;
         Player player = (Player) Bukkit.getPlayer(this.owner);
-        int id = player.getEntityId();
-        Entity E = (Entity) this.world.getEntity(id);
+        Entity E = (Entity)((CraftPlayer) player).getHandle();
         return E;
     }
     
@@ -128,7 +123,6 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
         world.removeEntity(this);
     }
 
-    @Override
     public EntityAgeable createChild(EntityAgeable ea) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -146,14 +140,24 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
 
     @Override
     public void setHealth(double health) {
-        setHealth((float) health);
+        setHealth((int) health);
     }
-    
+
+    @Override
+    public String getCustomName() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setCustomName(String name) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     @Override
     public Player getRescuer() {
         String name = (owner == null) ? lastOwner : owner;
         Player rescuer = Bukkit.getPlayer(name);
         return rescuer;
     }
-
+    
 }
