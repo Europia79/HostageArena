@@ -8,6 +8,6 @@ import java.util.List;
  */
 public interface HostageRoom {
     
-    public List getHostages(int matchID);
+    public List getHostages();
     
 }
