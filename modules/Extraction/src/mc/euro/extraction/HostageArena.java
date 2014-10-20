@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import mc.alk.arena.competition.match.Match;
-import mc.alk.arena.events.matches.MatchBeginEvent;
 import mc.alk.arena.events.matches.MatchResultEvent;
 import mc.alk.arena.events.matches.MatchStartEvent;
 import mc.alk.arena.objects.MatchResult;
@@ -18,8 +17,9 @@ import mc.alk.arena.objects.events.EventPriority;
 import mc.alk.arena.objects.spawns.TimedSpawn;
 import mc.alk.arena.objects.teams.ArenaTeam;
 import mc.alk.arena.serializers.Persist;
-import mc.euro.extraction.api.HostageRoom;
 import mc.euro.extraction.api.IHostagePlugin;
+import mc.euro.extraction.events.ExtractionTimerEvent;
+import mc.euro.extraction.events.HostageExtractedEvent;
 import mc.euro.extraction.nms.Hostage;
 import mc.euro.extraction.nms.NPCFactory;
 import mc.euro.extraction.util.Attributes;
@@ -36,8 +36,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 /**
  *
@@ -56,9 +54,13 @@ public class HostageArena extends Arena {
      * {@literal <pre>Map<teamID, kills></pre>}
      */
     Map<Integer, Integer> kills = new HashMap<Integer, Integer>();
+    int rescued;
     
     @Persist
     List<Location> epoints = new CopyOnWriteArrayList<Location>();
+    
+    // @Persist int radius;
+    // @Persist List<ExtractionZone> extractionZones = new CopyOnWriteArrayList<ExtractionZone>();
     
     public HostageArena() {
         this.plugin = (IHostagePlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
@@ -168,15 +170,9 @@ public class HostageArena extends Arena {
     @ArenaEventHandler (priority=EventPriority.HIGH)
     public void onHostageDeath(EntityDeathEvent e) {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
-        Hostage h = null;
-        try {
-            h = (Hostage) e.getEntity();
-        } catch (ClassCastException ex) {
-            
-        } finally {
-            if (vips.contains(h)) {
-                vips.remove(h);
-            }
+        Hostage h = factory.getHostage(e.getEntity());
+        if (vips.contains(h)) {
+            vips.remove(h);
         }
         // document which team killed the hostage.
         // End the match if they killed 2 of 3 hostages
@@ -200,6 +196,44 @@ public class HostageArena extends Arena {
         kills.put(teamID, k);
     }
     
+    @ArenaEventHandler (needsPlayer = false)
+    public void onTimerTick(ExtractionTimerEvent e) {
+        int time = e.getTime();
+        if (time >= 0) {
+            getMatch().sendMessage("" + time);
+        }
+    }
+    
+    @ArenaEventHandler (needsPlayer = false)
+    public void onHostageRescuedEvent(HostageExtractedEvent e) {
+        this.rescued = rescued + 1;
+        Hostage h = e.getHostage();
+        if (vips.contains(h)) {
+            vips.remove(h);
+        }
+        plugin.debug().log(name);
+        getMatch().sendMessage("Hostage Extracted !");
+        plugin.debug().log("Total rescued = " + this.rescued);
+        int k = 0;
+        for (Integer i : kills.values()) {
+            k = k + i;
+        }
+        plugin.debug().log("Total killed = " + k);
+        plugin.debug().log("vips.size() = " + vips.size());
+        if (vips.isEmpty()) {
+            MatchResult result = new MatchResult();
+            ArenaTeam winners = getTeam(e.getRescuer()); 
+            result.setVictor(winners);
+            ArenaTeam losers = getOtherTeam(winners);
+            result.addLoser(losers);
+            losers.sendMessage("" + losers.getTeamChatColor() 
+                    + "You lost! The other team rescued the hostages.");
+            winners.sendMessage("" + winners.getTeamChatColor()
+                    + "You won! You have rescued the hostages.");
+            getMatch().endMatchWithResult(result);
+        }
+    }
+    
     public ArenaTeam getOtherTeam(ArenaTeam team1) {
         ArenaTeam otherTeam = null;
         for (ArenaTeam team2 : getMatch().getTeams()) {
@@ -218,10 +252,11 @@ public class HostageArena extends Arena {
     public void onStart() {
         super.onStart();
         plugin.debug().msgArenaPlayers(getMatch().getPlayers(), "onStart() has been called.");
+        this.rescued = 0;
         
         if (this.epoints != null && !epoints.isEmpty()) {
-            this.tracker = new HostageTracker(getMatch(), getExtractionPoints());
-            this.taskID = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, tracker, 0L, 20L);
+            this.tracker = new HostageTracker(getMatch(), getVips(), getExtractionPoints());
+            this.taskID = tracker.runTaskTimer(plugin, 0L, 20L).getTaskId();
         } else {
             String WARNING = "There are no extraction points configured for this arena.";
             plugin.debug().msgArenaPlayers(getMatch().getPlayers(), WARNING);
@@ -258,7 +293,7 @@ public class HostageArena extends Arena {
         kills.clear();
     }
     
-    public List getHostages() {
+    public List getVillagers() {
         Match m = getMatch();
         Arena arena = m.getArena();
         List tlist = new ArrayList();
@@ -267,6 +302,14 @@ public class HostageArena extends Arena {
             if (en instanceof Villager) tlist.add(en);
         }
         return tlist;
+    }
+    
+    public Set<Hostage> getVips() {
+        return (vips == null) ? new LinkedHashSet() : this.vips;
+    }
+    
+    public List<Hostage> getHostages() {
+        return (hostages == null) ? new ArrayList() : this.hostages;
     }
     
     public List getHostageList() {
