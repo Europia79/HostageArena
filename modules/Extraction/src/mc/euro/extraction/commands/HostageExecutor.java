@@ -14,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 
 /**
  *
