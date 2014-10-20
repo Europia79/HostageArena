@@ -1,10 +1,10 @@
-package mc.euro.extraction.nms.v1_7_R1;
+package mc.euro.extraction.nms.v1_7_R4;
 
-import net.minecraft.server.v1_7_R1.EntityLiving;
-import net.minecraft.server.v1_7_R1.MathHelper;
-import net.minecraft.server.v1_7_R1.Navigation;
-import net.minecraft.server.v1_7_R1.PathfinderGoal;
-import net.minecraft.server.v1_7_R1.World;
+import net.minecraft.server.v1_7_R4.EntityLiving;
+import net.minecraft.server.v1_7_R4.MathHelper;
+import net.minecraft.server.v1_7_R4.Navigation;
+import net.minecraft.server.v1_7_R4.PathfinderGoal;
+import net.minecraft.server.v1_7_R4.World;
 
 /**
  * Modified PathfinderGoalFollowOwner. <br/><br/>
@@ -23,11 +23,11 @@ public class PathfinderGoalFollowPlayer extends PathfinderGoal {
     float c;
     private boolean i;
 
-    public PathfinderGoalFollowPlayer(CraftHostage paramHostage, double paramDouble, float paramFloat1, float paramFloat2) {
-        this.d = paramHostage;
-        this.a = paramHostage.world;
+    public PathfinderGoalFollowPlayer(CraftHostage paramEntityTameableAnimal, double paramDouble, float paramFloat1, float paramFloat2) {
+        this.d = paramEntityTameableAnimal;
+        this.a = paramEntityTameableAnimal.world;
         this.f = paramDouble;
-        this.g = paramHostage.getNavigation();
+        this.g = paramEntityTameableAnimal.getNavigation();
         this.c = paramFloat1;
         this.b = paramFloat2;
         a(3);
@@ -39,7 +39,7 @@ public class PathfinderGoalFollowPlayer extends PathfinderGoal {
         if (localEntityLiving == null) {
             return false;
         }
-        if (this.d.e(localEntityLiving) < this.c * this.c) {
+        if (this.d.f(localEntityLiving) < this.c * this.c) {
             return false;
         }
         this.e = localEntityLiving;
@@ -48,7 +48,7 @@ public class PathfinderGoalFollowPlayer extends PathfinderGoal {
 
     @Override
     public boolean b() {
-        return (!this.g.g()) && (this.d.e(this.e) > this.b * this.b);
+        return ((!this.g.g()) && (this.d.f(this.e) > this.b * this.b));
     }
 
     @Override
@@ -75,10 +75,10 @@ public class PathfinderGoalFollowPlayer extends PathfinderGoal {
         if (this.g.a(this.e, this.f)) {
             return;
         }
-        if (this.d.bL()) {
+        if (this.d.bN()) {
             return;
         }
-        if (this.d.e(this.e) < 144.0D) {
+        if (this.d.f(this.e) < 144.0D) {
             return;
         }
         int j = MathHelper.floor(this.e.locX) - 2;

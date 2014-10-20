@@ -12,7 +12,7 @@ import net.minecraft.server.v1_5_R3.World;
  * @author Nikolai
  */
 public class PathfinderGoalFollowPlayer extends PathfinderGoal {
-  private Hostage d;
+  private CraftHostage d;
   private EntityLiving e;
   World a;
   private float f;
@@ -22,7 +22,7 @@ public class PathfinderGoalFollowPlayer extends PathfinderGoal {
   float c;
   private boolean i;
   
-  public PathfinderGoalFollowPlayer(Hostage paramEntityTameableAnimal, float paramFloat1, float paramFloat2, float paramFloat3)
+  public PathfinderGoalFollowPlayer(CraftHostage paramEntityTameableAnimal, float paramFloat1, float paramFloat2, float paramFloat3)
   {
     this.d = paramEntityTameableAnimal;
     this.a = paramEntityTameableAnimal.world;
