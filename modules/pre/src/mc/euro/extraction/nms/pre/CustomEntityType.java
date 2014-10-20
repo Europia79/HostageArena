@@ -1,27 +1,26 @@
-package mc.euro.extraction.nms.v1_5_R3;
+package mc.euro.extraction.nms.pre;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.server.v1_5_R3.BiomeBase;
-import net.minecraft.server.v1_5_R3.BiomeMeta;
-// import net.minecraft.server.v1_5_R3.EntityInsentient;
-import net.minecraft.server.v1_5_R3.EntityCreature;
-import net.minecraft.server.v1_5_R3.EntityLiving;
-import net.minecraft.server.v1_5_R3.EntityTypes;
-import net.minecraft.server.v1_5_R3.EntityVillager;
+import net.minecraft.server.BiomeBase;
+import net.minecraft.server.BiomeMeta;
+// import net.minecraft.server.v1_5_R2.EntityInsentient;
+import net.minecraft.server.EntityLiving;
+import net.minecraft.server.EntityTypes;
+import net.minecraft.server.EntityVillager;
 import org.bukkit.entity.EntityType;
 
 /**
  * http://forums.bukkit.org/threads/nms-tutorial-how-to-override-default-minecraft-mobs.216788/
  *
- * @author TeeePeee, Jacek
+ * @author TeeePeee
  */
 public enum CustomEntityType {
 
     HOSTAGE("Villager", 120, EntityType.VILLAGER, EntityVillager.class, CraftHostage.class);
 
-    public String[] authors = {"TeeePeee", "Jacek"};
+    public String author = "TeeePeee";
     public String source = "http://forums.bukkit.org/threads/nms-tutorial-how-to-override-default-minecraft-mobs.216788/";
 
     private String name;
@@ -65,7 +64,7 @@ public enum CustomEntityType {
      */
     public static void registerEntities() {
         for (CustomEntityType entity : values()) {
-            add(entity.getCustomClass(), entity.getName(), entity.getID());
+            a(entity.getCustomClass(), entity.getName(), entity.getID());
         }
 
 // BiomeBase#biomes became private.
@@ -83,7 +82,7 @@ public enum CustomEntityType {
             }
 
 // This changed names from J, K, L and M.
-            for (String field : new String[]{"J", "K", "L", "M"}) {
+            for (String field : new String[]{"J", "K", "L"}) {
                 try {
                     Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
@@ -93,8 +92,8 @@ public enum CustomEntityType {
 // Write in our custom class.
                     for (BiomeMeta meta : mobList) {
                         for (CustomEntityType entity : values()) {
-                            if (entity.getNMSClass().equals(meta.b)) {
-                                meta.b = entity.getCustomClass();
+                            if (entity.getNMSClass().equals(meta.a)) {
+                                meta.a = entity.getCustomClass();
                             }
                         }
                     }
@@ -127,7 +126,7 @@ public enum CustomEntityType {
         for (CustomEntityType entity : values()) {
             try {
 // Unregister each entity by writing the NMS back in place of the custom class.
-                add(entity.getNMSClass(), entity.getName(), entity.getID());
+                a(entity.getNMSClass(), entity.getName(), entity.getID());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -148,7 +147,7 @@ public enum CustomEntityType {
             }
 
 // The list fields changed names but update the meta regardless.
-            for (String field : new String[]{"J", "K", "L", "M"}) {
+            for (String field : new String[]{"J", "K", "L"}) {
                 try {
                     Field list = BiomeBase.class.getDeclaredField(field);
                     list.setAccessible(true);
@@ -158,8 +157,8 @@ public enum CustomEntityType {
 // Make sure the NMS class is written back over our custom class.
                     for (BiomeMeta meta : mobList) {
                         for (CustomEntityType entity : values()) {
-                            if (entity.getCustomClass().equals(meta.b)) {
-                                meta.b = entity.getNMSClass();
+                            if (entity.getCustomClass().equals(meta.a)) {
+                                meta.a = entity.getNMSClass();
                             }
                         }
                     }
@@ -187,17 +186,15 @@ public enum CustomEntityType {
     /*
      * Since 1.7.2 added a check in their entity registration, simply bypass it and write to the maps ourself.
      */
-    private static void add(Class paramClass, String paramString, int paramInt) {
+    private static void a(Class paramClass, String paramString, int paramInt) {
         try {
             ((Map) getPrivateStatic(EntityTypes.class, "b")).put(paramString, paramClass);
             ((Map) getPrivateStatic(EntityTypes.class, "c")).put(paramClass, paramString);
             ((Map) getPrivateStatic(EntityTypes.class, "d")).put(Integer.valueOf(paramInt), paramClass);
             ((Map) getPrivateStatic(EntityTypes.class, "e")).put(paramClass, Integer.valueOf(paramInt));
             ((Map) getPrivateStatic(EntityTypes.class, "f")).put(paramString, Integer.valueOf(paramInt));
-            System.out.println("CustomEntityType registration successful");
         } catch (Exception ex) {
 // Unable to register the new class.
-            System.out.println("Unable to register CustomEntityType");
             ex.printStackTrace();
         }
     }
