@@ -24,7 +24,7 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
     
     DebugInterface debug;
     Version server;
-    public static final String MAX = "1.7.9-R9.9-SNAPSHOT";
+    public static final String MAX = "1.7.10-R9.9-SNAPSHOT";
     public static final String MIN = "1.2.5";
     String NMS;
     
