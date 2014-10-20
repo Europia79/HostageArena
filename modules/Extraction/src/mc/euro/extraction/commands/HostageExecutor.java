@@ -1,21 +1,15 @@
 package mc.euro.extraction.commands;
 
-import java.util.ArrayList;
 import java.util.List;
 import mc.alk.arena.BattleArena;
-import mc.alk.arena.controllers.BattleArenaController;
 import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.alk.arena.executors.MCCommand;
 import mc.alk.arena.objects.arenas.Arena;
-import mc.alk.arena.util.SerializerUtil;
 import mc.euro.extraction.HostageArena;
 import mc.euro.extraction.api.IHostagePlugin;
-import mc.euro.extraction.appljuze.CustomConfig;
 import mc.euro.extraction.debug.*;
 import mc.euro.extraction.nms.Hostage;
 import mc.euro.extraction.nms.NPCFactory;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -161,23 +155,21 @@ public class HostageExecutor extends CustomCommandExecutor {
     
     @MCCommand(cmds={"spawn"}, op=true)
     public boolean spawnHostage(Player sender) {
-        int hp = plugin.getConfig().getInt("HostageHP", 3);
-        return spawnHostage(sender, hp);
+        return spawnHostage(sender, "VIP");
     }
     
     @MCCommand(cmds={"spawn"}, op=true)
-    public boolean spawnHostage(Player sender, int hp) {
+    public boolean spawnHostage(Player sender, String name) {
         Location loc = sender.getLocation();
         NPCFactory factory = NPCFactory.newInstance(plugin);
         Hostage hostage = factory.spawnHostage(loc);
-        PluginManager pm = plugin.getServer().getPluginManager();
-        pm.registerEvents(new HostageListener(hostage, hp), plugin);
-        sender.sendMessage("Hostage spawned with " + hp + " hit points.");
+        hostage.setCustomName(name);
+        sender.sendMessage("Hostage named " + name + " has been spawned.");
         return true;
     }
     
     /**
-     * Toggles debug mode ON / OFF.
+     * Toggles debug mode ON / OFF. <br/>
      * Usage: /bomb debug
      */
     @MCCommand(cmds={"debug"}, perm="bombarena.debug", usage="debug")
