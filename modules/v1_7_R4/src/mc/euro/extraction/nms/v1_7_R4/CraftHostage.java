@@ -102,6 +102,16 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     }
     
     @Override
+    public String getOwnerUUID() {
+        if (this.owner == null) {
+            return null;
+        }
+        Player player = Bukkit.getPlayer(owner);
+        UUID uuid = player.getUniqueId();
+        return uuid.toString();
+    }
+    
+    @Override
     public Location getLocation() {
         Location loc = new Location(world.getWorld(), locX, locY, locZ, yaw, pitch);
         return loc;
@@ -141,16 +151,6 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     @Override
     public void setHealth(double health) {
         setHealth((float) health);
-    }
-
-    @Override
-    public String getOwnerUUID() {
-        if (this.owner == null) {
-            return null;
-        }
-        Player player = Bukkit.getPlayer(owner);
-        UUID uuid = player.getUniqueId();
-        return uuid.toString();
     }
 
     @Override
