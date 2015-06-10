@@ -2,10 +2,13 @@ package mc.euro.extraction.timers;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-import mc.euro.extraction.api.IHostagePlugin;
+
+import mc.alk.arena.controllers.PlayerController;
+import mc.alk.arena.objects.ArenaPlayer;
 import mc.euro.extraction.events.ExtractionTimerEvent;
 import mc.euro.extraction.events.HostageExtractedEvent;
 import mc.euro.extraction.nms.Hostage;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -60,7 +63,8 @@ public class ExtractionTimer extends BukkitRunnable {
         } else if (duration <= 0 && !extractionZone.isEmpty()) {
             
             for (Hostage h : clonedExtractionZone) {
-                HostageExtractedEvent rescuedEvent = new HostageExtractedEvent(h);
+                ArenaPlayer ap = PlayerController.getArenaPlayer(h.getRescuer());
+                HostageExtractedEvent rescuedEvent = new HostageExtractedEvent(h, ap);
                 Bukkit.getServer().getPluginManager().callEvent(rescuedEvent);
                 h.removeEntity();
             }
