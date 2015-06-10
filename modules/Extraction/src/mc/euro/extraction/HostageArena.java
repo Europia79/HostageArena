@@ -8,8 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import mc.alk.arena.competition.match.Match;
+import mc.alk.arena.controllers.PlayerController;
 import mc.alk.arena.events.matches.MatchResultEvent;
 import mc.alk.arena.events.matches.MatchStartEvent;
+import mc.alk.arena.objects.ArenaPlayer;
+import mc.alk.arena.objects.CompetitionResult;
 import mc.alk.arena.objects.MatchResult;
 import mc.alk.arena.objects.arenas.Arena;
 import mc.alk.arena.objects.events.ArenaEventHandler;
@@ -19,9 +22,11 @@ import mc.alk.arena.objects.teams.ArenaTeam;
 import mc.alk.arena.serializers.Persist;
 import mc.euro.extraction.api.IHostagePlugin;
 import mc.euro.extraction.events.ExtractionTimerEvent;
+import mc.euro.extraction.events.HostageDeathEvent;
 import mc.euro.extraction.events.HostageExtractedEvent;
 import mc.euro.extraction.nms.Hostage;
 import mc.euro.extraction.nms.NPCFactory;
+import mc.euro.extraction.timers.HostageTracker;
 import mc.euro.extraction.util.Attributes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,6 +38,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -42,6 +48,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
  * @author Nikolai
  */
 public class HostageArena extends Arena {
+    
     IHostagePlugin plugin;
     NPCFactory factory;
     Set<Villager> villagers = new LinkedHashSet<Villager>(6);
@@ -51,7 +58,7 @@ public class HostageArena extends Arena {
     HostageTracker tracker;
     int taskID;
     /**
-     * {@literal <pre>Map<teamID, kills></pre>}
+     * key = teamID, value = total number of kills.
      */
     Map<Integer, Integer> kills = new HashMap<Integer, Integer>();
     int rescued;
@@ -62,11 +69,22 @@ public class HostageArena extends Arena {
     // @Persist int radius;
     // @Persist List<ExtractionZone> extractionZones = new CopyOnWriteArrayList<ExtractionZone>();
     
+    /**
+     * Pre-BattleArena v3.9.8 constructor to support backwards compatibility.
+     */
     public HostageArena() {
         this.plugin = (IHostagePlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
-        // trackers = new HashMap<Integer, HostageTracker>();
         this.desiredHP = plugin.getConfig().getInt("HostageHP", 3);
         this.factory = NPCFactory.newInstance(plugin);
+    }
+    
+    /**
+     * This constructor requires BattleArena v3.9.8+.
+     */
+    public HostageArena(IHostagePlugin reference, NPCFactory npcFactory, int vipHitpoints) {
+        this.plugin = reference;
+        this.factory = npcFactory;
+        this.desiredHP = vipHitpoints;
     }
     
     public void addExtractionPoint(Location loc) {
@@ -86,7 +104,6 @@ public class HostageArena extends Arena {
         plugin.debug().log("MatchStartEvent called");
     }
     
-    // @ArenaEventHandler (priority=EventPriority.HIGHEST,entityMethod="getEntity")
     @ArenaEventHandler(priority = EventPriority.HIGHEST, needsPlayer = false)
     public void onSpawn(CreatureSpawnEvent e) {
         if (e.getEntity().getType() != EntityType.VILLAGER) return;
@@ -122,6 +139,7 @@ public class HostageArena extends Arena {
     public void onHostageInteract(PlayerInteractEntityEvent e) {
         plugin.debug().log("onHostageInteract() has been called.");
         if (e.getRightClicked().getType() != EntityType.VILLAGER) return;
+        if (!e.getEventName().equals("PlayerInteractEntityEvent")) return;
         
         Entity E = e.getRightClicked();
         
@@ -175,12 +193,15 @@ public class HostageArena extends Arena {
             vips.remove(h);
         }
         // document which team killed the hostage.
-        // End the match if they killed 2 of 3 hostages
-        Player killer = e.getEntity().getKiller();
+        ArenaPlayer killer = PlayerController.getArenaPlayer(e.getEntity().getKiller());
+        HostageDeathEvent deathEvent = new HostageDeathEvent(h, killer);
+        Bukkit.getServer().getPluginManager().callEvent(deathEvent);
         killer.sendMessage("You have killed a hostage.");
+        // document which team killed the hostage.
         int teamID = getTeam(killer).getId();
         int k = kills.get(teamID);
         k = k + 1;
+        // End the match if they killed 2 of 3 hostages
         if (k >= 2) {
             MatchResult result = new MatchResult();
             ArenaTeam losers = getTeam(killer);
@@ -194,6 +215,17 @@ public class HostageArena extends Arena {
             getMatch().endMatchWithResult(result);
         }
         kills.put(teamID, k);
+    }
+    
+    @ArenaEventHandler
+    public void onPlayerDeath(PlayerDeathEvent e) {
+        Player player = e.getEntity();
+        String name = player.getName();
+        for (Hostage h : vips) {
+            if (h.getOwnerName() != null && h.getOwnerName().equalsIgnoreCase(name)) {
+                h.stay();
+            }
+        }
     }
     
     @ArenaEventHandler (needsPlayer = false)
@@ -278,6 +310,10 @@ public class HostageArena extends Arena {
     
     @ArenaEventHandler
     public void onMatchResult(MatchResultEvent e) {
+        CompetitionResult result = e.getMatchResult();
+        if (result.isDraw()) {
+            
+        }
         for (Hostage h : vips) {
             h.removeEntity();
         }
