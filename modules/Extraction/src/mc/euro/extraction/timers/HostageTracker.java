@@ -1,12 +1,13 @@
-package mc.euro.extraction;
+package mc.euro.extraction.timers;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
 import mc.alk.arena.competition.match.Match;
 import mc.euro.extraction.api.IHostagePlugin;
 import mc.euro.extraction.nms.Hostage;
-import mc.euro.extraction.timers.ExtractionTimer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -57,19 +58,19 @@ public class HostageTracker extends BukkitRunnable {
         for (Hostage h : vips) {
             for (Location loc : extractions) {
                 double distance = loc.distance(h.getLocation());
-                plugin.debug().log("distance = " + distance);
+                // plugin.debug().log("distance = " + distance);
                 if (distance <= 12) {
-                    plugin.debug().log("Hostaged added");
+                    // plugin.debug().log("Hostaged added");
                     extractionZone.add(h);
                 }
             }
         }
-        plugin.debug().log("extractionZone.isEmpty() = " + extractionZone.isEmpty());
+        // plugin.debug().log("extractionZone.isEmpty() = " + extractionZone.isEmpty());
         return (!extractionZone.isEmpty());
     }
     
     public void stop() {
-        timer.cancel();
+        if (timer.hasStarted()) timer.cancel();
         this.cancel();
     }
     
