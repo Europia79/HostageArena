@@ -3,6 +3,7 @@ package mc.euro.extraction;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import mc.alk.arena.BattleArena;
 import mc.alk.arena.executors.CustomCommandExecutor;
 import mc.euro.extraction.api.IHostagePlugin;
@@ -10,10 +11,15 @@ import mc.euro.extraction.appljuze.ConfigManager;
 import mc.euro.extraction.appljuze.CustomConfig;
 import mc.euro.extraction.commands.HostageExecutor;
 import mc.euro.extraction.debug.*;
+import mc.euro.extraction.factory.FactoryWrapper;
+import mc.euro.extraction.nms.NPCFactory;
 import mc.euro.extraction.util.Version;
 import mc.euro.extraction.util.VersionFactory;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Server;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -22,22 +28,26 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
     
+    final String MAX = "1.8.3-R9.9-SNAPSHOT";
+    final String MIN = "1.6.0";
+    final Version<Server> server = VersionFactory.getServerVersion();
+    final String NMS = VersionFactory.getNmsVersion().toString();
     DebugInterface debug;
-    Version server;
-    public static final String MAX = "1.7.10-R9.9-SNAPSHOT";
-    public static final String MIN = "1.2.5";
-    String NMS;
     
     ConfigManager manager;
 
     @Override
     public void onEnable() {
-        NMS = VersionFactory.getNmsVersion().toString();
-        server = VersionFactory.getServerVersion();
         if (!server.isSupported(MAX) || !server.isCompatible(MIN)) {
-            getLogger().info("VirtualPlayers is not compatible with your server.");
+            getLogger().info("HostageArena is not compatible with your server.");
             getLogger().info("The maximum supported version is " + MAX);
             getLogger().info("The minimum capatible version is " + MIN);
+            Bukkit.getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        Version<Plugin> ba = VersionFactory.getPluginVersion("BattleArena");
+        if (!ba.isCompatible("3.9.7.3")) {
+            getLogger().info("HostageArena requires BattleArena v3.9.7.3+");
             Bukkit.getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -61,7 +71,14 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
         // registerListeners();
         // registerArena();
         CustomCommandExecutor cmd = new HostageExecutor(this);
-        BattleArena.registerCompetition(this, "HostageArena", "vips", HostageArena.class, cmd);
+        if (ba.isCompatible("3.9.8")) {
+            int hitpoints = getConfig().getInt("HostageHP", 3);
+            NPCFactory npcFactory = NPCFactory.newInstance(this);
+            FactoryWrapper wrapper = new FactoryWrapper(this, npcFactory, hitpoints);
+            wrapper.registerCompetition(this, "HostageArena", "vips", HostageArena.class, cmd);
+        } else {
+            BattleArena.registerCompetition(this, "HostageArena", "vips", HostageArena.class, cmd);
+        }
         // CustomEntityType.registerEntities();
         registerEntites();
     }
