@@ -27,7 +27,7 @@ public class HostageExecutor extends CustomCommandExecutor {
         this.plugin = p;
     }
     
-    @MCCommand(cmds={"list"},subCmds={"extractionpoint","extractionpoints"}, op=true)
+    @MCCommand(cmds={"list"},subCmds={"extractionpoint","extractionpoints"}, perm="vips.extractionpoints.list")
     public boolean listExtractionPoints(CommandSender sender, Arena a) {
         if (!(a instanceof HostageArena)) {
             sender.sendMessage("" + a.getName() + " is not a HostageArena");
@@ -47,14 +47,14 @@ public class HostageExecutor extends CustomCommandExecutor {
         return true;
     }
 
-    @MCCommand(cmds={"set"}, subCmds={"extractionpoint"}, op = true)
+    @MCCommand(cmds={"set"}, subCmds={"extractionpoint"}, perm="vips.extractionpoints.set")
     public boolean setExtractionPoint(Player sender, Arena arena) {
         clearExtractionPoints(sender, arena);
         addExtractionPoint(sender, arena);
         return true;
     }
     
-    @MCCommand(cmds={"clear"}, subCmds={"extractionpoints"},op=true)
+    @MCCommand(cmds={"clear"}, subCmds={"extractionpoints"}, perm="vips.extractionpoints.clear")
     public boolean clearExtractionPoints(CommandSender sender, Arena a) {
         // path = arenas.{arenaName}.persistables.epoints
         if (!(a instanceof HostageArena)) {
@@ -68,7 +68,7 @@ public class HostageExecutor extends CustomCommandExecutor {
         return true;
     }
 
-    @MCCommand(cmds = {"add"}, subCmds = {"extractionpoint"}, op = true)
+    @MCCommand(cmds = {"add"}, subCmds = {"extractionpoint"}, perm="vips.extractionpoints.add")
     public boolean addExtractionPoint(Player sender, Arena a) {
         
         if (!(a instanceof HostageArena)) {
@@ -114,7 +114,7 @@ public class HostageExecutor extends CustomCommandExecutor {
         return false;
     }
     
-    @MCCommand(cmds={"setspawn"}, perm="hostagearena.vips.spawn")
+    @MCCommand(cmds={"setspawn"}, perm="vips.setspawn")
     public boolean setHostageSpawn(Player sender, Arena arena) {
         plugin.debug().log("arena = " + arena.getName());
         int matchTime = arena.getParams().getMatchTime();
@@ -171,7 +171,7 @@ public class HostageExecutor extends CustomCommandExecutor {
      * Toggles debug mode ON / OFF. <br/>
      * Usage: /bomb debug
      */
-    @MCCommand(cmds={"debug"}, perm="bombarena.debug", usage="debug")
+    @MCCommand(cmds={"debug"}, perm="vips.debug", usage="debug")
     public boolean toggleDebug(CommandSender sender) {
         if (plugin.debug() instanceof DebugOn) {
             plugin.setDebugging(false);
