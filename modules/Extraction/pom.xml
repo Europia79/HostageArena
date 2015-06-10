@@ -10,7 +10,7 @@
     </parent>
     <groupId>mc.euro</groupId>
     <artifactId>extraction</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2-SNAPSHOT</version>
     <name>Extraction</name>
     <url>http://github.com/Europia79/Extraction</url>
     <properties>
@@ -131,9 +131,16 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-v1_8_R1</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>mc.alk</groupId>
             <artifactId>BattleArena</artifactId>
-            <version>3.9.7.9</version>
+            <version>3.9.8</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -233,10 +240,4 @@
         </plugin>
         </plugins>
     </build>
-    <distributionManagement>
-      <repository>
-        <id>rainbowcraft-repo</id>
-        <url>scp://23.29.127.102/var/www/maven/repository</url>
-      </repository>
-    </distributionManagement>
 </project>

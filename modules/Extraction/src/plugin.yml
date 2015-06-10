@@ -1,8 +1,8 @@
 name: HostageArena
 main: mc.euro.extraction.HostagePlugin
 version: ${project.version}
-website: http://battleplugins.com/
-description: One team guards the hostages. The other team rescues the hostages.
+website: http://dev.bukkit.org/bukkit-plugins/hostagearena/
+description: Rescue the hostages
 authors: [Europia79]
 depend: [BattleArena]
 softdepnd: [BattleTracker]
@@ -12,3 +12,21 @@ commands:
         aliases: [extraction, hostage, hostagearena, harena, rescue]
         description: All HostageArena commands.
         usage: Problem loading plugin, please send errors on startup to Europia79
+permissions:
+  hostagearena.admin:
+    default: op
+    children:
+      vips.extractionpoints.add: true
+      vips.extractionpoints.set: true
+      vips.extractionpoints.clear: true
+      vips.extractionpoints.list: true
+      vips.setspawn: true
+      vips.debug: true
+  vips.stats:
+    default: true
+  vips.stats.other:
+    default: true
+  vips.stats.top:
+    default: true
+  arena.join.hostagearena:
+    default: true
