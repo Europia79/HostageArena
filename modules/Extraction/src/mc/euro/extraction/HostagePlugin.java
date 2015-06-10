@@ -28,7 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
     
-    final String MAX = "1.8.3-R9.9-SNAPSHOT";
+    final String MAX = "1.8.7-R9.9-SNAPSHOT";
     final String MIN = "1.6.0";
     final Version<Server> server = VersionFactory.getServerVersion();
     final String NMS = VersionFactory.getNmsVersion().toString();

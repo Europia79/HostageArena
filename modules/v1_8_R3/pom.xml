@@ -9,9 +9,9 @@
         <relativePath>../../</relativePath>
     </parent>
     <groupId>mc.euro</groupId>
-    <artifactId>extraction-v1_8_R2</artifactId>
+    <artifactId>extraction-v1_8_R3</artifactId>
     <version>parent</version>
-    <name>extraction-v1_8_R2</name>
+    <name>extraction-v1_8_R3</name>
     <url>https://github.com/Europia79/Extraction</url>
     <properties>
         <maven.build.timestamp.format>MMdd</maven.build.timestamp.format>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>craftbukkit</artifactId>
-            <version>1.8.3-R0.1-SNAPSHOT</version>
+            <version>1.8.7-R0.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -60,7 +60,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>Extraction-v1_8_R2</finalName>
+        <finalName>Extraction-v1_8_R3</finalName>
         <directory>./target</directory>
         <sourceDirectory>./src</sourceDirectory>
         <plugins>
