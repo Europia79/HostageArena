@@ -54,7 +54,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>Extraction-v1_6_R1</finalName>
+        <finalName>Extraction-pre</finalName>
         <directory>./target</directory>
         <sourceDirectory>./src</sourceDirectory>
         <plugins>
