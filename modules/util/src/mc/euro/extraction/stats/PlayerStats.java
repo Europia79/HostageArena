@@ -19,7 +19,7 @@ public class PlayerStats {
     boolean enabled;
     
     public PlayerStats(String x) {
-        plugin = (JavaPlugin) Bukkit.getServer().getPluginManager().getPlugin("BombArena");
+        plugin = (JavaPlugin) Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
         loadTracker(x);
     }
     
