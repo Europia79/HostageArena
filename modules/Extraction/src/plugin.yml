@@ -9,9 +9,12 @@ softdepnd: [BattleTracker]
 prefix: HostageArena
 commands:
     vips:
-        aliases: [extraction, hostage, hostagearena, harena, rescue]
-        description: All HostageArena commands.
+        aliases: [rescueArena, rArena, ra, vipArena, vArena, va]
+        description: Either team can rescue/capture the VIPs.
         usage: Problem loading plugin, please send errors on startup to Europia79
+    hostage:
+        aliases: [hostageArena, hArena, ha, guardArena, gArena, ga]
+        description: One team guards the hostages, while the other team rescues them.
 permissions:
   hostagearena.admin:
     default: op
