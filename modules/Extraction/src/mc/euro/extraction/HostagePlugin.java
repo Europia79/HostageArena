@@ -28,45 +28,41 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
     
-    final String MAX = "1.8.7-R9.9-SNAPSHOT";
-    final String MIN = "1.6.0";
+    @Deprecated final String MAX = "1.8.8-R9.9-SNAPSHOT"; // not used
+    @Deprecated final String MIN = "1.6.0"; // invisibility bug for 1.5.x & below
     final Version<Server> server = VersionFactory.getServerVersion();
     final String NMS = VersionFactory.getNmsVersion().toString();
-    DebugInterface debug;
     
     ConfigManager manager;
+    DebugInterface debug;
 
     @Override
     public void onEnable() {
-        if (!server.isSupported(MAX) || !server.isCompatible(MIN)) {
-            getLogger().info("HostageArena is not compatible with your server.");
-            getLogger().info("The maximum supported version is " + MAX);
-            getLogger().info("The minimum capatible version is " + MIN);
+        
+        if (!isServerCompatible()) {
+            String className = "mc.euro.extraction.nms." + NMS + ".CraftHostage";
+            getLogger().log(Level.WARNING, "HostageArena is not compatible with your server.");
+            getLogger().log(Level.WARNING, "IMPLEMENTATION NOT FOUND: ");
+            getLogger().log(Level.WARNING, className);
             Bukkit.getServer().getPluginManager().disablePlugin(this);
             return;
         }
+        
         Version<Plugin> ba = VersionFactory.getPluginVersion("BattleArena");
         if (!ba.isCompatible("3.9.7.3")) {
             getLogger().info("HostageArena requires BattleArena v3.9.7.3+");
             Bukkit.getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        saveDefaultConfig();
-        manager = new ConfigManager(this);
         
-        debug = new DebugOn(this);
-
-        debug.log("HostageNames = " + getConfig().getStringList("HostageNames").toString());
-        debug.log("HostageTypes = " + getConfig().getStringList("HostageTypes").toString());
-        debug.log("HostageHP = " + getConfig().getInt("HostageHP", 3));
-        debug.log("ExtractionTimer = " + getConfig().getInt("ExtractionTimer", 30));
+        /**
+         * Writes config.yml if it doesn't exist.
+         * Updates an old config.yml with new nodes.
+         */
+        setupConfigYml();
         
-        boolean b = getConfig().getBoolean("Debug");
-        if (b) {
-            debug = new DebugOn(this);
-        } else {
-            debug = new DebugOff(this);
-        }
+        loadConfigYml();
+        
         // getServer().getPluginManager().registerEvents(new HostageArena(), this);
         // registerListeners();
         // registerArena();
@@ -75,20 +71,72 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
             int hitpoints = getConfig().getInt("HostageHP", 3);
             NPCFactory npcFactory = NPCFactory.newInstance(this);
             FactoryWrapper wrapper = new FactoryWrapper(this, npcFactory, hitpoints);
-            wrapper.registerCompetition(this, "HostageArena", "vips", HostageArena.class, cmd);
+            wrapper.registerCompetition(this, "VipArena", "vips", HostageArena.class, cmd);
         } else {
-            BattleArena.registerCompetition(this, "HostageArena", "vips", HostageArena.class, cmd);
+            BattleArena.registerCompetition(this, "VipArena", "vips", HostageArena.class, cmd);
         }
         // CustomEntityType.registerEntities();
         registerEntites();
-    }
-
+    } // End of onEnable()
+    
     @Override
     public void onDisable() {
         super.onDisable();
-        // CustomEntityType.unregisterEntities();
-        unregisterEntities();
+        if (isServerCompatible()) {
+            unregisterEntities(); // CustomEntityType.unregisterEntities();
+        }
+        updateConfigYml();
     }
+    
+    private boolean isServerCompatible() {
+        String className = "mc.euro.extraction.nms." + NMS + ".CraftHostage";
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException ex) {
+            return false;
+        }
+    }
+    
+    private void updateConfigYml() {
+        if (debug instanceof DebugOn) {
+            getConfig().set("Debug", true);
+        } else {
+            getConfig().set("Debug", false);
+        }
+        saveConfig();
+    }
+    
+    /**
+     * Writes config.yml if it doesn't exist. 
+     * Updates an old config.yml with new nodes.
+     */
+    private void setupConfigYml() {
+        saveDefaultConfig(); // Save the default config.yml if it doesn't exist
+        getConfig().options().copyHeader(true); // update comment section
+        getConfig().options().copyDefaults(true); // append
+        saveConfig();
+    }
+    
+    public void loadConfigYml() {
+        manager = new ConfigManager(this);
+        
+        boolean b = getConfig().getBoolean("Debug");
+        if (b) {
+            debug = new DebugOn(this);
+        } else {
+            debug = new DebugOff(this);
+        }
+
+        try {
+            debug.log("HostageNames = " + getConfig().getStringList("HostageNames").toString());
+            debug.log("HostageTypes = " + getConfig().getStringList("HostageTypes").toString());
+            debug.log("HostageHP = " + getConfig().getInt("HostageHP", 3));
+            debug.log("ExtractionTimer = " + getConfig().getInt("ExtractionTimer", 30));
+        } catch (NullPointerException ignored) {
+            
+        }
+    } // End of loadConfigYml()
     
     public Class<?> getNmsClass(String clazz) throws ClassNotFoundException {
         return Class.forName("mc.euro.extraction.nms." + NMS + "." + clazz);
@@ -186,6 +234,7 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
         } else {
             debug = new DebugOff(this);
         }
+        updateConfigYml();
     }
     
     @Override
