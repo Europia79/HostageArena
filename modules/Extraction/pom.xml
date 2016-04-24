@@ -10,7 +10,7 @@
     </parent>
     <groupId>mc.euro</groupId>
     <artifactId>extraction</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
     <name>Extraction</name>
     <url>http://github.com/Europia79/Extraction</url>
     <properties>
@@ -210,14 +210,6 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8.1</version>
-                <configuration>
-                    <excludePackageNames>*.metrics</excludePackageNames>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>1.4</version>
                 <executions>
@@ -241,6 +233,9 @@
             <configuration>
                 <tasks>
                     <copy file="../../target/HostageArena.jar" tofile="../../../server/plugins/HostageArena.jar"/>
+                    <copy file="../../target/HostageArena.jar" tofile="../../../server/plugins-1.9/HostageArena.jar"/>
+                    <copy file="../../target/HostageArena.jar" tofile="../../../server/plugins-1.8/HostageArena.jar"/>
+                    <copy file="../../target/HostageArena.jar" tofile="../../../server/plugins-1.7/HostageArena.jar"/>
                 </tasks>
             </configuration>
             <executions>
@@ -251,7 +246,18 @@
                     </goals>
                 </execution>
             </executions>
-        </plugin>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <excludePackageNames>mc.euro.extractin.nms.*:*.metrics</excludePackageNames>
+                    <links>
+                        <link>http://jd.bukkit.org/dev/apidocs/</link>
+                    </links>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
