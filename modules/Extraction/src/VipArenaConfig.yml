@@ -1,7 +1,7 @@
-HostageArena:
-  name: HostageArena
+VipArena:
+  name: VipArena
   command: vips
-  prefix: '&a[HostageArena]&e '
+  prefix: '&a[VipArena]&e '
   gameSize:
     nTeams: '2'
     teamSize: '1-16'
