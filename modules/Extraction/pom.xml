@@ -10,7 +10,7 @@
     </parent>
     <groupId>mc.euro</groupId>
     <artifactId>extraction</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
     <name>Extraction</name>
     <url>http://github.com/Europia79/Extraction</url>
     <properties>
@@ -147,6 +147,13 @@
         <dependency>
             <groupId>mc.euro</groupId>
             <artifactId>extraction-v1_8_R3</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-v1_9_R1</artifactId>
             <version>parent</version>
             <type>jar</type>
             <optional>true</optional>

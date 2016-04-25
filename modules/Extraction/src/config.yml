@@ -1,7 +1,11 @@
 # HostageNames: [AnyNumberOfNames] default = VIP
 # HostageTypes: [FARMER, LIBRARIAN, PRIEST, BLACKSMITH, BUTCHER, RANDOM]
 # HostageHP: the number of hits that it takes to kill a hostage.
+# HostageFollowDistance: floating point number (in blocks)
 # ExtractionTimer: Recommended value of 0 to 60 seconds.
+# AllowGuardsToInteractWithHostages: true/false
+#  # if true, guards can order VIPs to follow.
+#  # if false, guards cannot order VIPs to follow.
 # FakeName: Name inside the stats database. 
 #  # the database tracks
 #  # 1. Number of Hostages Rescued
@@ -10,6 +14,8 @@
 HostageNames: [VIP,mbaxter,Notch]
 HostageTypes: [RANDOM,PRIEST,LIBRARIAN]
 HostageHP: 3
+HostageFollowDistance: 3.0
 ExtractionTimer: 30
-FakeName: Hostages Extracted Killed
+ExtractionZoneSize: 12
+AllowGuardsToInteractWithHostages: true
 Debug: false
