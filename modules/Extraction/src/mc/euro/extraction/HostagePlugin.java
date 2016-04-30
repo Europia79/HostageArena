@@ -1,24 +1,30 @@
 package mc.euro.extraction;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import mc.alk.arena.BattleArena;
-import mc.alk.arena.executors.CustomCommandExecutor;
-import mc.euro.extraction.api.IHostagePlugin;
+import mc.alk.arena.serializers.ArenaSerializer;
+import mc.euro.extraction.api.ExtractionPlugin;
 import mc.euro.extraction.appljuze.ConfigManager;
 import mc.euro.extraction.appljuze.CustomConfig;
+import mc.euro.extraction.arenas.HostageArena;
+import mc.euro.extraction.arenas.VipArena;
 import mc.euro.extraction.commands.HostageExecutor;
-import mc.euro.extraction.debug.*;
-import mc.euro.extraction.factory.FactoryWrapper;
-import mc.euro.extraction.nms.NPCFactory;
-import mc.euro.extraction.util.Version;
-import mc.euro.extraction.util.VersionFactory;
+import mc.euro.extraction.commands.VipExecutor;
+import mc.euro.extraction.debug.DebugInterface;
+import mc.euro.extraction.debug.DebugOff;
+import mc.euro.extraction.debug.DebugOn;
+import mc.euro.extraction.factory.HostageArenaFactory;
+import mc.euro.extraction.factory.VipArenaFactory;
+import mc.euro.extraction.v2.Version;
+import mc.euro.extraction.v2.VersionFactory;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.event.Listener;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -26,12 +32,9 @@ import org.bukkit.plugin.java.JavaPlugin;
  *
  * @author Nikolai
  */
-public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
+public class HostagePlugin extends JavaPlugin implements ExtractionPlugin {
     
-    @Deprecated final String MAX = "1.8.8-R9.9-SNAPSHOT"; // not used
-    @Deprecated final String MIN = "1.6.0"; // invisibility bug for 1.5.x & below
-    final Version<Server> server = VersionFactory.getServerVersion();
-    final String NMS = VersionFactory.getNmsVersion().toString();
+    final String NMS = VersionFactory.getNmsPackage();
     
     ConfigManager manager;
     DebugInterface debug;
@@ -44,14 +47,14 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
             getLogger().log(Level.WARNING, "HostageArena is not compatible with your server.");
             getLogger().log(Level.WARNING, "IMPLEMENTATION NOT FOUND: ");
             getLogger().log(Level.WARNING, className);
-            Bukkit.getServer().getPluginManager().disablePlugin(this);
+            disableHostageArena();
             return;
         }
         
         Version<Plugin> ba = VersionFactory.getPluginVersion("BattleArena");
         if (!ba.isCompatible("3.9.7.3")) {
             getLogger().info("HostageArena requires BattleArena v3.9.7.3+");
-            Bukkit.getServer().getPluginManager().disablePlugin(this);
+            disableHostageArena();
             return;
         }
         
@@ -63,20 +66,17 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
         
         loadConfigYml();
         
-        // getServer().getPluginManager().registerEvents(new HostageArena(), this);
-        // registerListeners();
-        // registerArena();
-        CustomCommandExecutor cmd = new HostageExecutor(this);
+        fixHostageArenaConfigYml();
+        
         if (ba.isCompatible("3.9.8")) {
-            int hitpoints = getConfig().getInt("HostageHP", 3);
-            NPCFactory npcFactory = NPCFactory.newInstance(this);
-            FactoryWrapper wrapper = new FactoryWrapper(this, npcFactory, hitpoints);
-            wrapper.registerCompetition(this, "VipArena", "vips", HostageArena.class, cmd);
+            VipArenaFactory.registerCompetition(this, "VipArena", "vips", VipArena.class, new VipExecutor(this));
+            HostageArenaFactory.registerCompetition(this, "HostageArena", "hostage", HostageArena.class, new HostageExecutor(this));
         } else {
-            BattleArena.registerCompetition(this, "VipArena", "vips", HostageArena.class, cmd);
+            BattleArena.registerCompetition(this, "VipArena", "vips", VipArena.class, new VipExecutor(this));
+            BattleArena.registerCompetition(this, "HostageArena", "hostage", HostageArena.class, new HostageExecutor(this));
         }
-        // CustomEntityType.registerEntities();
-        registerEntites();
+        
+        registerEntites(); // CustomEntityType.registerEntities();
     } // End of onEnable()
     
     @Override
@@ -86,6 +86,7 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
             unregisterEntities(); // CustomEntityType.unregisterEntities();
         }
         updateConfigYml();
+        saveAllArenas();
     }
     
     private boolean isServerCompatible() {
@@ -98,6 +99,10 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
         }
     }
     
+    private void disableHostageArena() {
+        Bukkit.getPluginManager().disablePlugin(this);
+    }
+    
     private void updateConfigYml() {
         if (debug instanceof DebugOn) {
             getConfig().set("Debug", true);
@@ -105,6 +110,11 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
             getConfig().set("Debug", false);
         }
         saveConfig();
+    }
+    
+    private void saveAllArenas() {
+        boolean verbose = (debug instanceof DebugOn);
+        ArenaSerializer.saveAllArenas(verbose);
     }
     
     /**
@@ -138,59 +148,29 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
         }
     } // End of loadConfigYml()
     
-    public Class<?> getNmsClass(String clazz) throws ClassNotFoundException {
-        return Class.forName("mc.euro.extraction.nms." + NMS + "." + clazz);
-    }
-    
-    private void registerArena() {
-        try {
-            Class arenaClass = getNmsClass("HostageArena");
-            CustomCommandExecutor cmd = getCustomCommandExecutor();
-            debug.log("registering HostageArena class: " + arenaClass.toString());
-            BattleArena.registerCompetition(this, "HostageArena", "vips", 
-                    arenaClass,
-                    cmd);
-        } catch (Exception ex) {
-            Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
+    /**
+     * Node "HostageArena.command" must be "hostage".
+     * 
+     * Originally, HostageArena only supported HostageArena...
+     * Then it was changed to VipArena with VipArenaConfig.yml
+     * But the problem is if the old HostageArenaConfig.yml is still there.
+     * Then the node will incorrectly be "vips".
+     */
+    private void fixHostageArenaConfigYml() {
+        File hfile = new File(this.getDataFolder(), "HostageArenaConfig.yml");
+        if (hfile.exists()) {
+            FileConfiguration hconfig = YamlConfiguration.loadConfiguration(hfile);
+            if (hconfig.getString("HostageArena.command", "").equals("vips")) {
+                hconfig.set("HostageArena.command", "hostage");
+            }
+            try {
+                hconfig.save(hfile);
+            } catch (IOException ex) {
+                Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-    }
+    } // End of fixHostageArenaConfigYml()
     
-    private CustomCommandExecutor getCustomCommandExecutor() {
-        try {
-            Class cmdClass = getNmsClass("HostageExecutor");
-            return ((CustomCommandExecutor) cmdClass
-                    .getConstructor(new Class[]{IHostagePlugin.class}).newInstance(this));
-        } catch (ClassNotFoundException ex) {
-            getLogger().log(Level.SEVERE, null, ex);
-        } catch (NoSuchMethodException ex) {
-            Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SecurityException ex) {
-            Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            getLogger().log(Level.SEVERE, null, ex);
-        } catch (IllegalArgumentException ex) {
-            getLogger().log(Level.SEVERE, null, ex);
-        } catch (InvocationTargetException ex) {
-            getLogger().log(Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            getLogger().log(Level.SEVERE, null, ex);
-        } catch (Exception ex) {
-            getLogger().log(Level.SEVERE, null, ex);
-        }
-        getLogger().info("[HostageArena] method getCustomCommandExecutor() has disabled HostageArena");
-        disableHostageArena();
-        return null;
-    }
-    
-    private void registerListeners() {
-        try {
-            getServer().getPluginManager().registerEvents(
-                    (Listener) getNmsClass("NpcListener").getConstructor().newInstance(), this);
-        } catch (Exception ex) {
-            Logger.getLogger(HostagePlugin.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     private void registerEntites() {
         try {
             getNmsClass("CustomEntityType").getDeclaredMethod("registerEntities").invoke(null);
@@ -207,15 +187,15 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
         }
     }
     
-    private void disableHostageArena() {
-        Bukkit.getPluginManager().disablePlugin(this);
+    public Class<?> getNmsClass(String clazz) throws ClassNotFoundException {
+        return Class.forName("mc.euro.extraction.nms." + NMS + "." + clazz);
     }
-
+    
     @Override
     public DebugInterface debug() {
         return this.debug;
     }
-
+    
     @Override
     public boolean toggleDebug() {
         if (debug instanceof DebugOn) {
@@ -226,7 +206,7 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
         }
         return true;
     }
-
+    
     @Override
     public void setDebugging(boolean enable) {
         if (enable == true) {
@@ -237,7 +217,6 @@ public class HostagePlugin extends JavaPlugin implements IHostagePlugin {
         updateConfigYml();
     }
     
-    @Override
     public CustomConfig getConfig(String fileName) {
         return manager.getNewConfig(fileName);
     }
