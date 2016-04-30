@@ -1,10 +1,12 @@
 package mc.euro.extraction.nms.v1_7_R3;
 
-import mc.euro.extraction.api.IHostagePlugin;
+import mc.euro.extraction.api.ExtractionPlugin;
 import mc.euro.extraction.nms.Hostage;
 import mc.euro.extraction.nms.NPCFactory;
-import mc.euro.extraction.util.Attributes;
+import mc.euro.extraction.util.Villagers;
+
 import net.minecraft.server.v1_7_R3.World;
+
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R3.entity.CraftEntity;
@@ -19,7 +21,7 @@ import org.bukkit.entity.Villager.Profession;
  */
 public class HostageFactory extends NPCFactory {
     
-    public HostageFactory(IHostagePlugin p) {
+    public HostageFactory(ExtractionPlugin p) {
         this.plugin = p;
     }
 
@@ -53,7 +55,7 @@ public class HostageFactory extends NPCFactory {
 
     @Override
     public Hostage spawnHostage(Location loc) {
-        Profession profession = Attributes.getRandomType();
+        Profession profession = Villagers.getRandomType();
         return spawnHostage(loc, profession);
     }
     

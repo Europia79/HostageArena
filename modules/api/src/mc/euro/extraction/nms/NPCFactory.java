@@ -1,8 +1,10 @@
 package mc.euro.extraction.nms;
 
 import java.lang.reflect.Constructor;
-import mc.euro.extraction.api.IHostagePlugin;
+
+import mc.euro.extraction.api.ExtractionPlugin;
 import mc.euro.version.VersionFactory;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Villager.Profession;
@@ -14,15 +16,15 @@ import org.bukkit.entity.Villager.Profession;
  */
 public abstract class NPCFactory {
     
-    protected IHostagePlugin plugin;
+    protected ExtractionPlugin plugin;
     protected static String NMS;
     
     /**
      * The NPCFactory has a different implementation for each version of Minecraft.
      */
-    public static NPCFactory newInstance(IHostagePlugin plugin) {
+    public static NPCFactory newInstance(ExtractionPlugin plugin) {
         NMS = VersionFactory.getNmsPackage();
-        Class<?>[] args = {IHostagePlugin.class};
+        Class<?>[] args = {ExtractionPlugin.class};
         Constructor con = null;
         NPCFactory factory = null;
         try {
