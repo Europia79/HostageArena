@@ -2,33 +2,36 @@ package mc.euro.extraction.util;
 
 import java.util.List;
 import java.util.Random;
-import mc.euro.extraction.api.IHostagePlugin;
+
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Villager.Profession;
+import org.bukkit.plugin.Plugin;
 
 /**
  *
  * @author Nikolai
  */
-public class Attributes {
+public class Villagers {
     
-    private static int tCounter = 0;
-    private static int nCounter = 0;
+    private static int tCounter = 0; // type counter
+    private static int nCounter = 0; // name counter
     
-    public static Profession getType(IHostagePlugin plugin) {
-        return getType(plugin, "HostageTypes");
+    public static Profession getType() {
+        return getType("HostageTypes");
     }
     
-    private static Profession getType(IHostagePlugin plugin, String path) {
+    private static Profession getType(String path) {
         Profession p = Profession.FARMER;
-        Attributes.tCounter = Attributes.tCounter + 1;
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("HostageArena");
+        Villagers.tCounter = Villagers.tCounter + 1;
         List<String> professions = plugin.getConfig().getStringList(path);
-        if (professions != null && professions.size() > 0 && Attributes.tCounter <= professions.size()) {
+        if (professions != null && professions.size() > 0 && Villagers.tCounter <= professions.size()) {
             try {
                 p = Profession.valueOf(professions.get(tCounter - 1));
             } catch (IllegalArgumentException ex) {
                 p = getRandomType();
             }
-            if (Attributes.tCounter >= professions.size()) Attributes.tCounter = 0;
+            if (Villagers.tCounter >= professions.size()) Villagers.tCounter = 0;
         }
         return p;
     }
@@ -37,17 +40,18 @@ public class Attributes {
         return Profession.getProfession(new Random().nextInt(5));
     }
     
-    public static String getName(IHostagePlugin plugin) {
-        return getName(plugin, "HostageNames");
+    public static String getName() {
+        return getName("HostageNames");
     }
     
-    private static String getName(IHostagePlugin plugin, String path) {
+    private static String getName(String path) {
         String name = "VIP";
-        Attributes.nCounter = Attributes.nCounter + 1;
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("HostageArena");
+        Villagers.nCounter = Villagers.nCounter + 1;
         List<String> names = plugin.getConfig().getStringList(path);
-        if (names != null && names.size() > 0 && Attributes.nCounter <= names.size()) {
+        if (names != null && names.size() > 0 && Villagers.nCounter <= names.size()) {
             name = names.get(nCounter - 1);
-            if (Attributes.nCounter >= names.size()) Attributes.nCounter = 0;
+            if (Villagers.nCounter >= names.size()) Villagers.nCounter = 0;
         }
         return name;
     }
