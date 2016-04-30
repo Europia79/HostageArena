@@ -5,7 +5,7 @@ website: http://dev.bukkit.org/bukkit-plugins/hostagearena/
 description: Rescue the hostages
 authors: [Europia79]
 depend: [BattleArena]
-softdepnd: [BattleTracker]
+softdepnd: [BattleTracker, WorldEdit]
 prefix: HostageArena
 commands:
     vips:
