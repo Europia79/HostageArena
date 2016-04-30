@@ -1,6 +1,9 @@
 package mc.euro.extraction.commands;
 
-import mc.euro.extraction.util.BukkitVersion;
+import mc.euro.extraction.v2.Version;
+import mc.euro.extraction.v2.VersionFactory;
+
+import org.bukkit.plugin.Plugin;
 
 /**
  * This class handles backwards compatibility for different 
@@ -18,8 +21,24 @@ import mc.euro.extraction.util.BukkitVersion;
  * @author Nikolai
  */
 public abstract class Command {
-
-    public static String addspawn(int duration, int index) {
+    
+    /**
+     * Not yet implemented in BattleArena, hence why it's private. <br/><br/>
+     * @return 
+     */
+    private static String addspawn() {
+        String cmd3 = "aa addspawn VILLAGER"
+                + " fs=0"
+                + " rs=0"
+                + " ds=-1";
+        return cmd3;
+    }
+    
+    public static String addspawn(int index) {
+        return addspawn(index, -1);
+    }
+    
+    public static String addspawn(int index, int duration) {
         // /aa addspawn VILLAGER 3 fs=1 rs=500 ds=500 index=1
         // /aa addspawn VILLAGER 3 fs=1 rs=500 ds=500 1
         String cmd1 = "aa addspawn VILLAGER"
@@ -32,21 +51,9 @@ public abstract class Command {
                 + " rs=0"
                 + " ds=" + duration
                 + " " + index;
-        BukkitVersion v = BukkitVersion.getVersion("BattleArena");
+        Version<Plugin> v = VersionFactory.getPluginVersion("BattleArena");
         String cmd = v.isCompatible("3.9.6.2") ? cmd1 : cmd2;
         return cmd;
     }
     
-    /**
-     * Not yet implemented in BattleArena, hence why it's private. <br/><br/>
-     * @param duration The match duration.
-     * @return 
-     */
-    private static String addSpawn(int duration) {
-        String cmd3 = "aa addspawn VILLAGER"
-                + " fs=0"
-                + " rs=0"
-                + " ds=" + duration;
-        return cmd3;
-    }
 }
