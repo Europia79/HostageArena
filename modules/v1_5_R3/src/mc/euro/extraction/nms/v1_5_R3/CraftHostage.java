@@ -157,6 +157,7 @@ public class CraftHostage extends EntityVillager implements Hostage {
     @Override
     public Player getRescuer() {
         String name = (owner == null) ? lastOwner : owner;
+        if (name == null) return null;
         Player rescuer = Bukkit.getPlayer(name);
         return rescuer;
     }

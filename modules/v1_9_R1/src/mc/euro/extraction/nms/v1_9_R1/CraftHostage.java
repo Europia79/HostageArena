@@ -3,7 +3,6 @@ package mc.euro.extraction.nms.v1_9_R1;
 import com.google.common.collect.Sets;
 
 import java.lang.reflect.Field;
-import java.util.LinkedHashSet;
 import java.util.UUID;
 
 import mc.euro.extraction.nms.Hostage;
@@ -159,6 +158,7 @@ public class CraftHostage extends EntityVillager implements EntityOwnable, Hosta
     @Override
     public Player getRescuer() {
         String name = (owner == null) ? lastOwner : owner;
+        if (name == null) return null;
         Player rescuer = Bukkit.getPlayer(name);
         return rescuer;
     }
