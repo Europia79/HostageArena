@@ -3,47 +3,62 @@ package mc.euro.extraction.timers;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import mc.alk.arena.competition.match.Match;
 import mc.alk.arena.controllers.PlayerController;
 import mc.alk.arena.objects.ArenaPlayer;
+import mc.alk.arena.objects.arenas.Arena;
 import mc.euro.extraction.events.ExtractionTimerEvent;
 import mc.euro.extraction.events.HostageExtractedEvent;
 import mc.euro.extraction.nms.Hostage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
  *
  * @author Nikolai
  */
-public class ExtractionTimer extends BukkitRunnable {
+public class ExtractionTimer implements Runnable {
     
     Plugin plugin;
-    int duration = 31;
+    int duration;
     boolean started;
     BukkitTask task;
     Set<Hostage> extractionZone = new LinkedHashSet<Hostage>();
     
-    public ExtractionTimer() {
+    Arena arena;
+    Match match;
+    
+    public ExtractionTimer(Arena arena) {
         this.plugin = Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
         this.duration = plugin.getConfig().getInt("ExtractionTimer", 30) + 1;
         this.started = false;
+        this.arena = arena;
+        this.match = arena.getMatch();
     }
     
-    public ExtractionTimer(int time) {
+    public ExtractionTimer(Arena arena, int time) {
         this.plugin = Bukkit.getServer().getPluginManager().getPlugin("HostageArena");
         this.duration = time;
         this.started = false;
+        this.arena = arena;
+        this.match = arena.getMatch();
     }
     
     public int start() {
         if (started == false) {
             started = true;
-            task = runTaskTimer(plugin, 20L, duration);
+            task = Bukkit.getScheduler().runTaskTimer(plugin, this, 20L, 20L);
         }
         return task.getTaskId();
+    }
+    
+    public void stop() {
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
     }
     
     public boolean hasStarted() {
@@ -53,20 +68,19 @@ public class ExtractionTimer extends BukkitRunnable {
     @Override
     public void run() {
         this.duration = duration - 1;
-        ExtractionTimerEvent timerEvent = new ExtractionTimerEvent(this);
+        ExtractionTimerEvent timerEvent = new ExtractionTimerEvent(arena, this);
         Bukkit.getServer().getPluginManager().callEvent(timerEvent);
         
         Set<Hostage> clonedExtractionZone = new LinkedHashSet<Hostage>(extractionZone);
         
-        if (duration > 0) {
-            
-        } else if (duration <= 0 && !extractionZone.isEmpty()) {
+        if (duration <= 0 && !extractionZone.isEmpty()) {
             
             for (Hostage h : clonedExtractionZone) {
-                ArenaPlayer ap = PlayerController.getArenaPlayer(h.getRescuer());
-                HostageExtractedEvent rescuedEvent = new HostageExtractedEvent(h, ap);
+                ArenaPlayer rescuer = PlayerController.toArenaPlayer(h.getRescuer());
+                HostageExtractedEvent rescuedEvent = new HostageExtractedEvent(h, rescuer);
                 Bukkit.getServer().getPluginManager().callEvent(rescuedEvent);
                 h.removeEntity();
+                extractionZone.remove(h);
             }
         }
     }
@@ -75,7 +89,15 @@ public class ExtractionTimer extends BukkitRunnable {
         return this.duration;
     }
     
-    public void setExtractionZone(Set<Hostage> hostagesAtExtractionZone) {
+    public Arena getArena() {
+        return this.arena;
+    }
+    
+    public Match getMatch() {
+        return this.match;
+    }
+    
+    public synchronized void setExtractionZone(Set<Hostage> hostagesAtExtractionZone) {
         this.extractionZone = hostagesAtExtractionZone;
     }
 }
