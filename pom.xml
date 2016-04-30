@@ -14,7 +14,6 @@
     <modules>
         <module>modules/api</module>
         <module>modules/util</module>
-        <module>modules/pre</module>
         <module>modules/v1_5_R2</module>
         <module>modules/v1_5_R3</module>
         <module>modules/v1_6_R1</module>
