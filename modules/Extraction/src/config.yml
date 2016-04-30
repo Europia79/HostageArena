@@ -16,6 +16,8 @@ HostageTypes: [RANDOM,PRIEST,LIBRARIAN]
 HostageHP: 3
 HostageFollowDistance: 3.0
 ExtractionTimer: 30
-ExtractionZoneSize: 12
-AllowGuardsToInteractWithHostages: true
+TimerSound: ENTITY_EXPERIENCE_ORB_PICKUP
+TimerRange: 256
+TimerPitch: 1
+ExtractionZoneRadius: 12
 Debug: false
