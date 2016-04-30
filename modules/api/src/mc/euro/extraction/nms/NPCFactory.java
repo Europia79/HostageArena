@@ -21,7 +21,7 @@ public abstract class NPCFactory {
      * The NPCFactory has a different implementation for each version of Minecraft.
      */
     public static NPCFactory newInstance(IHostagePlugin plugin) {
-        NMS = VersionFactory.getNmsVersion().toString();
+        NMS = VersionFactory.getNmsPackage();
         Class<?>[] args = {IHostagePlugin.class};
         Constructor con = null;
         NPCFactory factory = null;
