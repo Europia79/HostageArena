@@ -10,7 +10,7 @@
     </parent>
     <groupId>mc.euro</groupId>
     <artifactId>extraction</artifactId>
-    <version>1.1.6</version>
+    <version>2.0.0</version>
     <name>Extraction</name>
     <url>http://github.com/Europia79/Extraction</url>
     <properties>
@@ -64,8 +64,52 @@
         </dependency>
         <dependency>
             <groupId>mc.euro</groupId>
-            <artifactId>extraction-pre</artifactId>
+            <artifactId>extraction-v1_2_5</artifactId>
             <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-v1_3_2</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-v1_4_2</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-v1_4_5</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-v1_4_6</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-v1_4_R1</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>mc.euro</groupId>
+            <artifactId>extraction-v1_5_R1</artifactId>
+            <version>parent</version>
+            <type>jar</type>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>mc.euro</groupId>
@@ -184,6 +228,7 @@
                     <include>plugin.yml</include>
                     <include>config.yml</include>
                     <include>HostageArenaConfig.yml</include>
+                    <include>VipArenaConfig.yml</include>
                     <include>*.yml</include>
                 </includes>
             </resource>
