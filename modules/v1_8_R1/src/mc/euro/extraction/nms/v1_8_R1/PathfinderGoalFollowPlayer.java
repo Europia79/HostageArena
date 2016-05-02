@@ -34,10 +34,10 @@ public class PathfinderGoalFollowPlayer extends PathfinderGoal {
         this.b = paramFloat2;
         a(3);
         /*
-        if (!(paramHostage.getNavigation() instanceof Navigation)) {
-            throw new IllegalArgumentException("Unsupported mob type for FollowOwnerGoal");
-        }
-        */
+         if (!(paramHostage.getNavigation() instanceof Navigation)) {
+         throw new IllegalArgumentException("Unsupported mob type for FollowOwnerGoal");
+         }
+         */
     }
 
     @Override
